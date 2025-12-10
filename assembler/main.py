@@ -1,4 +1,4 @@
-from assembler import encode_code
+from .assembler import encode_code
 
 while True:
     code = input("> ")
