@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Type
 
 
 class AssemblerType:
@@ -96,7 +95,7 @@ class JType(AssemblerType):
         pass
 
 
-Inst_Map = {
+InstMap = {
     "add": RType(opcode=0x33, funct3=0x0, funct7=0x00),
     "sub": RType(opcode=0x33, funct3=0x0, funct7=0x20),
     "sll": RType(opcode=0x33, funct3=0x1, funct7=0x00),
@@ -145,8 +144,8 @@ def to_bin(num: int, length: int):
 
 
 def encode_code(code: str):
-    opType = type(Inst_Map[code.split()[0]])
+    op_type = type(InstMap[code.split()[0]])
     # current_type = op_type(code.split()[0], list(code.replace(",", " ").split()[1:]))
-    return opType.encode(
-        Inst_Map[code.split()[0]], list(code.replace(",", " ").split()[1:])
+    return op_type.encode(
+        InstMap[code.split()[0]], list(code.replace(",", " ").split()[1:])
     )
