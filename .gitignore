@@ -1,0 +1,6 @@
+slides/*
+.metals/*
+
+.DS_Store
+
+.idea/*
