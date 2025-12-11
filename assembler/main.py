@@ -1,4 +1,4 @@
-from assembler import encode_code
+from .assembler import encode_code
 
 TEST_VECTORS = [
     ("add", "add x1, x2, x3", "00000000001100010000000010110011"),
