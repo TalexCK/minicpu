@@ -46,7 +46,15 @@ class IType(AssemblerType):
         # if funct7_is_imm:
         #     funct7_imm = self.imm
         #     funct7_imm_start = self.imm_start
-        pass
+        # print(args[2])
+        # print(imm)
+        return (
+            to_bin(imm, 12)
+            + to_bin(rs1, 5)
+            + to_bin(funct3, 3)
+            + to_bin(rd, 5)
+            + to_bin(opcode, 7)
+        )
 
 
 class SType(AssemblerType):
@@ -59,7 +67,18 @@ class SType(AssemblerType):
         rs1 = int(args[0][1:])
         rs2 = int(args[1][1:])
         imm = int(args[2])
-        pass
+        # rs2 = int(args[0][1:])
+        # rs1 = int(args[1].split("(")[1].split(")")[0][1:])
+        # imm = int(args[1].split("(")[0])
+        imm_bin = to_bin(imm, 12)
+        return (
+            imm_bin[0:7]
+            + to_bin(rs2, 5)
+            + to_bin(rs1, 5)
+            + to_bin(funct3, 3)
+            + imm_bin[7:12]
+            + to_bin(opcode, 7)
+        )
 
 
 class BType(AssemblerType):
@@ -72,7 +91,18 @@ class BType(AssemblerType):
         rs1 = int(args[0][1:])
         rs2 = int(args[1][1:])
         imm = int(args[2])
-        pass
+        imm = to_bin(imm, 13)
+
+        # return (
+        #     imm[0]
+        #     + imm[2:8]
+        #     + to_bin(rs2, 5)
+        #     + to_bin(rs1, 5)
+        #     + to_bin(funct3, 3)
+        #     + imm[8:12]
+        #     + imm[1]
+        #     + to_bin(opcode, 7)
+        # )
 
 
 class UType(AssemblerType):
@@ -82,7 +112,7 @@ class UType(AssemblerType):
         opcode = self.opcode
         rd = int(args[0][1:])
         imm = int(args[1])
-        pass
+        return to_bin(imm[31:12], 20) + to_bin(rd, 5) + to_bin(opcode, 7)
 
 
 class JType(AssemblerType):
@@ -92,7 +122,14 @@ class JType(AssemblerType):
         opcode = self.opcode
         rd = int(args[0][1:])
         imm = int(args[1])
-        pass
+        return (
+            to_bin(imm[20], 1)
+            + to_bin(imm[10:1], 10)
+            + to_bin(imm[11], 1)
+            + to_bin(imm[19:12], 8)
+            + to_bin(rd, 5)
+            + to_bin(opcode, 7)
+        )
 
 
 InstMap = {
