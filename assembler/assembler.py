@@ -1,6 +1,3 @@
-from dataclasses import dataclass
-
-
 class AssemblerType:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -20,6 +17,7 @@ class RType(AssemblerType):
         rd = int(args[0][1:])
         rs1 = int(args[1][1:])
         rs2 = int(args[2][1:])
+
         return (
             to_bin(funct7, 7)
             + to_bin(rs2, 5)
@@ -35,26 +33,55 @@ class IType(AssemblerType):
     funct3: int
     imm: int = 0
     imm_start: int = 0x0
+    funct7: int = 0x00
+    if_funct7: bool = False
 
     def encode(self, args: list):
         opcode = self.opcode
-        rd = int(args[0][1:])
-        rs1 = int(args[1][1:])
-        funct3 = self.funct3
-        imm = int(args[2])
-        # funct7_is_imm = self.funct7_is_imm
-        # if funct7_is_imm:
-        #     funct7_imm = self.imm
-        #     funct7_imm_start = self.imm_start
-        # print(args[2])
-        # print(imm)
-        return (
-            to_bin(imm, 12)
-            + to_bin(rs1, 5)
-            + to_bin(funct3, 3)
-            + to_bin(rd, 5)
-            + to_bin(opcode, 7)
-        )
+        if opcode == 0x73:
+            funct7 = self.funct7
+            if funct7 == 0x0:
+                return "00000000000000000000000001110011"
+            else:
+                return "00000000000100000000000001110011"
+        elif opcode == 0x03 or opcode == 0x67:
+            opcode = self.opcode
+            funct3 = self.funct3
+            rd = int(args[0][1:])
+            rs1_and_imm = list(args[1].split("("))
+            rs1 = int(rs1_and_imm[1][1:-1])
+            imm = int(rs1_and_imm[0])
+            return (
+                to_bin(imm, 12)
+                + to_bin(rs1, 5)
+                + to_bin(funct3, 3)
+                + to_bin(rd, 5)
+                + to_bin(opcode, 7)
+            )
+        else:
+            funct3 = self.funct3
+            rd = int(args[0][1:])
+            rs1 = int(args[1][1:])
+            if_funct7 = self.if_funct7
+            imm = int(args[2])
+            if if_funct7:
+                funct7 = self.funct7
+                return (
+                    to_bin(funct7, 7)
+                    + to_bin(imm, 5)
+                    + to_bin(rs1, 5)
+                    + to_bin(funct3, 3)
+                    + to_bin(rd, 5)
+                    + to_bin(opcode, 7)
+                )
+            else:
+                return (
+                    to_bin(imm, 12)
+                    + to_bin(rs1, 5)
+                    + to_bin(funct3, 3)
+                    + to_bin(rd, 5)
+                    + to_bin(opcode, 7)
+                )
 
 
 class SType(AssemblerType):
@@ -64,19 +91,17 @@ class SType(AssemblerType):
     def encode(self, args: list):
         opcode = self.opcode
         funct3 = self.funct3
-        rs1 = int(args[0][1:])
-        rs2 = int(args[1][1:])
-        imm = int(args[2])
-        # rs2 = int(args[0][1:])
-        # rs1 = int(args[1].split("(")[1].split(")")[0][1:])
-        # imm = int(args[1].split("(")[0])
-        imm_bin = to_bin(imm, 12)
+        rs2 = int(args[0][1:])
+        rs1_and_imm = list(args[1].split("("))
+        rs1 = int(rs1_and_imm[1][1:-1])
+        imm = int(rs1_and_imm[0])
+
         return (
-            imm_bin[0:7]
+            to_bin(imm, 7, 5)
             + to_bin(rs2, 5)
             + to_bin(rs1, 5)
             + to_bin(funct3, 3)
-            + imm_bin[7:12]
+            + to_bin(imm, 5)
             + to_bin(opcode, 7)
         )
 
@@ -91,18 +116,17 @@ class BType(AssemblerType):
         rs1 = int(args[0][1:])
         rs2 = int(args[1][1:])
         imm = int(args[2])
-        imm = to_bin(imm, 13)
 
-        # return (
-        #     imm[0]
-        #     + imm[2:8]
-        #     + to_bin(rs2, 5)
-        #     + to_bin(rs1, 5)
-        #     + to_bin(funct3, 3)
-        #     + imm[8:12]
-        #     + imm[1]
-        #     + to_bin(opcode, 7)
-        # )
+        return (
+            to_bin(imm, 1, 12)
+            + to_bin(imm, 6, 5)
+            + to_bin(rs2, 5)
+            + to_bin(rs1, 5)
+            + to_bin(funct3, 3)
+            + to_bin(imm, 4, 1)
+            + to_bin(imm, 1, 11)
+            + to_bin(opcode, 7)
+        )
 
 
 class UType(AssemblerType):
@@ -112,7 +136,8 @@ class UType(AssemblerType):
         opcode = self.opcode
         rd = int(args[0][1:])
         imm = int(args[1])
-        return to_bin(imm[31:12], 20) + to_bin(rd, 5) + to_bin(opcode, 7)
+
+        return to_bin(imm, 20) + to_bin(rd, 5) + to_bin(opcode, 7)
 
 
 class JType(AssemblerType):
@@ -122,11 +147,12 @@ class JType(AssemblerType):
         opcode = self.opcode
         rd = int(args[0][1:])
         imm = int(args[1])
+
         return (
-            to_bin(imm[20], 1)
-            + to_bin(imm[10:1], 10)
-            + to_bin(imm[11], 1)
-            + to_bin(imm[19:12], 8)
+            to_bin(imm, 1, 20)
+            + to_bin(imm, 10, 1)
+            + to_bin(imm, 1, 11)
+            + to_bin(imm, 8, 12)
             + to_bin(rd, 5)
             + to_bin(opcode, 7)
         )
@@ -149,17 +175,17 @@ InstMap = {
     "xori": IType(opcode=0x13, funct3=0x4),
     "ori": IType(opcode=0x13, funct3=0x6),
     "andi": IType(opcode=0x13, funct3=0x7),
-    "slli": IType(opcode=0x13, funct3=0x1, imm=0x00, imm_start=0x5),
-    "srli": IType(opcode=0x13, funct3=0x5, imm=0x00, imm_start=0x5),
-    "srai": IType(opcode=0x13, funct3=0x5, imm=0x20, imm_start=0x5),
+    "slli": IType(opcode=0x13, funct3=0x1, funct7=0x00, if_funct7=True),
+    "srli": IType(opcode=0x13, funct3=0x5, funct7=0x00, if_funct7=True),
+    "srai": IType(opcode=0x13, funct3=0x5, funct7=0x20, if_funct7=True),
     "lb": IType(opcode=0x03, funct3=0x0),
     "lh": IType(opcode=0x03, funct3=0x1),
     "lw": IType(opcode=0x03, funct3=0x2),
     "lbu": IType(opcode=0x03, funct3=0x4),
     "lhu": IType(opcode=0x03, funct3=0x5),
     "jalr": IType(opcode=0x67, funct3=0x0),
-    "ecall": IType(opcode=0x73, funct3=0x0, imm=0x0),
-    "ebreak": IType(opcode=0x73, funct3=0x0, imm=0x1),
+    "ecall": IType(opcode=0x73, funct3=0x0, funct7=0x0),
+    "ebreak": IType(opcode=0x73, funct3=0x0, funct7=0x1),
     "sb": SType(opcode=0x23, funct3=0x0),
     "sh": SType(opcode=0x23, funct3=0x1),
     "sw": SType(opcode=0x23, funct3=0x2),
@@ -176,8 +202,10 @@ InstMap = {
 
 
 # 转化为二进制并确保长度
-def to_bin(num: int, length: int):
-    return bin(num)[2:].zfill(length)
+def to_bin(num: int, length: int, start: int = 0):
+    if num < 0:
+        return (bin(num & 0xFFFFFFFF)[2:].zfill(32))[32 - start - length : 32 - start]
+    return bin(num)[2:].zfill(32)[32 - start - length : 32 - start]
 
 
 def encode_code(code: str):
