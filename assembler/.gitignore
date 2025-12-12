@@ -15,3 +15,7 @@ build/
 venv/
 env/
 ENV/
+
+*target/
+firmware.asm
+firmware.hex

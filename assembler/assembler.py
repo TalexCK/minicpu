@@ -1,4 +1,4 @@
-from utils import read_file_as_list, write_file
+from .utils import read_file_as_list, write_file
 
 
 class AssemblerType:
@@ -18,10 +18,7 @@ class RType(AssemblerType):
         funct3 = self.funct3
         funct7 = self.funct7
         rd = int(args[0][1:], 0)
-        if opcode == 0x41:
-            rs1 = 0
-        else:
-            rs1 = int(args[1][1:], 0)
+        rs1 = int(args[1][1:], 0)
         rs2 = int(args[2][1:], 0)
 
         return (
@@ -50,8 +47,6 @@ class IType(AssemblerType):
                 return "00000000000000000000000001110011"
             else:
                 return "00000000000100000000000001110011"
-        if opcode == 0x41:
-            return "00000000000000000000000000010011"
         elif opcode == 0x03 or opcode == 0x67:
             opcode = self.opcode
             funct3 = self.funct3
@@ -71,14 +66,7 @@ class IType(AssemblerType):
             rd = int(args[0][1:], 0)
             rs1 = int(args[1][1:], 0)
             if_funct7 = self.if_funct7
-            if opcode == 0x42:
-                opcode = 0x13
-                imm = 0
-            elif opcode == 0x43:
-                opcode = 0x13
-                imm = -1
-            else:
-                imm = int(args[2], 0)
+            imm = int(args[2], 0)
             if if_funct7:
                 funct7 = self.funct7
                 return (
@@ -176,7 +164,6 @@ class JType(AssemblerType):
 InstMap = {
     "add": RType(opcode=0x33, funct3=0x0, funct7=0x00),
     "sub": RType(opcode=0x33, funct3=0x0, funct7=0x20),
-    "neg": RType(opcode=0x41, funct3=0x0, funct7=0x20),
     "sll": RType(opcode=0x33, funct3=0x1, funct7=0x00),
     "slt": RType(opcode=0x33, funct3=0x2, funct7=0x00),
     "sltu": RType(opcode=0x33, funct3=0x3, funct7=0x00),
@@ -186,9 +173,6 @@ InstMap = {
     "or": RType(opcode=0x33, funct3=0x6, funct7=0x00),
     "and": RType(opcode=0x33, funct3=0x7, funct7=0x00),
     "addi": IType(opcode=0x13, funct3=0x0),
-    "not": IType(opcode=0x43, funct3=0x4),
-    "mv": IType(opcode=0x42, funct3=0x0),
-    "nop": IType(opcode=0x41, funct3=0x0),
     "slti": IType(opcode=0x13, funct3=0x2),
     "sltiu": IType(opcode=0x13, funct3=0x3),
     "xori": IType(opcode=0x13, funct3=0x4),
@@ -220,7 +204,7 @@ InstMap = {
 }
 
 
-# 转化为二进制并确保长度
+# transform number to binary string
 def to_bin(num: int, length: int, start: int = 0):
     if num < 0:
         return (bin(num & 0xFFFFFFFF)[2:].zfill(32))[32 - start - length : 32 - start]
@@ -238,16 +222,7 @@ def encode_code(code: str):
 
 def encode_file(path: str):
     assemble_code = []
-    if_start = False
     for i in read_file_as_list(path):
-        if if_start:
-            if i[0] == ".":
-                if_start = False
-            elif i.split()[0] == "#":
-                continue
-            else:
-                assemble_code.append(encode_code(i))
-        elif i == "_start:":
-            if_start = True
+        assemble_code.append(encode_code(i))
 
-    write_file("./code.hex", assemble_code)
+    write_file("./assembler/firmware.hex", assemble_code)
