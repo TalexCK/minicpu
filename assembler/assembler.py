@@ -1,3 +1,6 @@
+from .utils import read_file_as_list, write_file
+
+
 class AssemblerType:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -14,9 +17,9 @@ class RType(AssemblerType):
         opcode = self.opcode
         funct3 = self.funct3
         funct7 = self.funct7
-        rd = int(args[0][1:])
-        rs1 = int(args[1][1:])
-        rs2 = int(args[2][1:])
+        rd = int(args[0][1:], 0)
+        rs1 = int(args[1][1:], 0)
+        rs2 = int(args[2][1:], 0)
 
         return (
             to_bin(funct7, 7)
@@ -47,10 +50,10 @@ class IType(AssemblerType):
         elif opcode == 0x03 or opcode == 0x67:
             opcode = self.opcode
             funct3 = self.funct3
-            rd = int(args[0][1:])
+            rd = int(args[0][1:], 0)
             rs1_and_imm = list(args[1].split("("))
-            rs1 = int(rs1_and_imm[1][1:-1])
-            imm = int(rs1_and_imm[0])
+            rs1 = int(rs1_and_imm[1][1:-1], 0)
+            imm = int(rs1_and_imm[0], 0)
             return (
                 to_bin(imm, 12)
                 + to_bin(rs1, 5)
@@ -60,10 +63,10 @@ class IType(AssemblerType):
             )
         else:
             funct3 = self.funct3
-            rd = int(args[0][1:])
-            rs1 = int(args[1][1:])
+            rd = int(args[0][1:], 0)
+            rs1 = int(args[1][1:], 0)
             if_funct7 = self.if_funct7
-            imm = int(args[2])
+            imm = int(args[2], 0)
             if if_funct7:
                 funct7 = self.funct7
                 return (
@@ -91,10 +94,10 @@ class SType(AssemblerType):
     def encode(self, args: list):
         opcode = self.opcode
         funct3 = self.funct3
-        rs2 = int(args[0][1:])
+        rs2 = int(args[0][1:], 0)
         rs1_and_imm = list(args[1].split("("))
-        rs1 = int(rs1_and_imm[1][1:-1])
-        imm = int(rs1_and_imm[0])
+        rs1 = int(rs1_and_imm[1][1:-1], 0)
+        imm = int(rs1_and_imm[0], 0)
 
         return (
             to_bin(imm, 7, 5)
@@ -113,9 +116,9 @@ class BType(AssemblerType):
     def encode(self, args: list):
         opcode = self.opcode
         funct3 = self.funct3
-        rs1 = int(args[0][1:])
-        rs2 = int(args[1][1:])
-        imm = int(args[2])
+        rs1 = int(args[0][1:], 0)
+        rs2 = int(args[1][1:], 0)
+        imm = int(args[2], 0)
 
         return (
             to_bin(imm, 1, 12)
@@ -134,8 +137,8 @@ class UType(AssemblerType):
 
     def encode(self, args: list):
         opcode = self.opcode
-        rd = int(args[0][1:])
-        imm = int(args[1])
+        rd = int(args[0][1:], 0)
+        imm = int(args[1], 0)
 
         return to_bin(imm, 20) + to_bin(rd, 5) + to_bin(opcode, 7)
 
@@ -145,8 +148,8 @@ class JType(AssemblerType):
 
     def encode(self, args: list):
         opcode = self.opcode
-        rd = int(args[0][1:])
-        imm = int(args[1])
+        rd = int(args[0][1:], 0)
+        imm = int(args[1], 0)
 
         return (
             to_bin(imm, 1, 20)
@@ -201,7 +204,7 @@ InstMap = {
 }
 
 
-# 转化为二进制并确保长度
+# transform number to binary string
 def to_bin(num: int, length: int, start: int = 0):
     if num < 0:
         return (bin(num & 0xFFFFFFFF)[2:].zfill(32))[32 - start - length : 32 - start]
@@ -212,5 +215,14 @@ def encode_code(code: str):
     op_type = type(InstMap[code.split()[0]])
     # current_type = op_type(code.split()[0], list(code.replace(",", " ").split()[1:]))
     return op_type.encode(
-        InstMap[code.split()[0]], list(code.replace(",", " ").split()[1:])
+        InstMap[code.split()[0]],
+        list(code.replace("sp", "x2").replace(",", " ").split()[1:]),
     )
+
+
+def encode_file(path: str):
+    assemble_code = []
+    for i in read_file_as_list(path):
+        assemble_code.append(encode_code(i))
+
+    write_file("./assembler/firmware.hex", assemble_code)
