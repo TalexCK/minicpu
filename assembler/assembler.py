@@ -1,3 +1,6 @@
+from utils import read_file_as_list, write_file
+
+
 class AssemblerType:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -212,5 +215,23 @@ def encode_code(code: str):
     op_type = type(InstMap[code.split()[0]])
     # current_type = op_type(code.split()[0], list(code.replace(",", " ").split()[1:]))
     return op_type.encode(
-        InstMap[code.split()[0]], list(code.replace(",", " ").split()[1:])
+        InstMap[code.split()[0]],
+        list(code.replace("sp", "x2").replace(",", " ").split()[1:]),
     )
+
+
+def encode_file(path: str):
+    assemble_code = []
+    if_start = False
+    for i in read_file_as_list(path):
+        if if_start:
+            if i[0] == ".":
+                if_start = False
+            elif i.split()[0] == "#":
+                continue
+            else:
+                assemble_code.append(encode_code(i))
+        elif i == "_start:":
+            if_start = True
+
+    write_file("./code.hex", assemble_code)
