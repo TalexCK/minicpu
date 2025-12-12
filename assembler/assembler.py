@@ -17,9 +17,12 @@ class RType(AssemblerType):
         opcode = self.opcode
         funct3 = self.funct3
         funct7 = self.funct7
-        rd = int(args[0][1:])
-        rs1 = int(args[1][1:])
-        rs2 = int(args[2][1:])
+        rd = int(args[0][1:], 0)
+        if opcode == 0x41:
+            rs1 = 0
+        else:
+            rs1 = int(args[1][1:], 0)
+        rs2 = int(args[2][1:], 0)
 
         return (
             to_bin(funct7, 7)
@@ -47,13 +50,15 @@ class IType(AssemblerType):
                 return "00000000000000000000000001110011"
             else:
                 return "00000000000100000000000001110011"
+        if opcode == 0x41:
+            return "00000000000000000000000000010011"
         elif opcode == 0x03 or opcode == 0x67:
             opcode = self.opcode
             funct3 = self.funct3
-            rd = int(args[0][1:])
+            rd = int(args[0][1:], 0)
             rs1_and_imm = list(args[1].split("("))
-            rs1 = int(rs1_and_imm[1][1:-1])
-            imm = int(rs1_and_imm[0])
+            rs1 = int(rs1_and_imm[1][1:-1], 0)
+            imm = int(rs1_and_imm[0], 0)
             return (
                 to_bin(imm, 12)
                 + to_bin(rs1, 5)
@@ -63,10 +68,17 @@ class IType(AssemblerType):
             )
         else:
             funct3 = self.funct3
-            rd = int(args[0][1:])
-            rs1 = int(args[1][1:])
+            rd = int(args[0][1:], 0)
+            rs1 = int(args[1][1:], 0)
             if_funct7 = self.if_funct7
-            imm = int(args[2])
+            if opcode == 0x42:
+                opcode = 0x13
+                imm = 0
+            elif opcode == 0x43:
+                opcode = 0x13
+                imm = -1
+            else:
+                imm = int(args[2], 0)
             if if_funct7:
                 funct7 = self.funct7
                 return (
@@ -94,10 +106,10 @@ class SType(AssemblerType):
     def encode(self, args: list):
         opcode = self.opcode
         funct3 = self.funct3
-        rs2 = int(args[0][1:])
+        rs2 = int(args[0][1:], 0)
         rs1_and_imm = list(args[1].split("("))
-        rs1 = int(rs1_and_imm[1][1:-1])
-        imm = int(rs1_and_imm[0])
+        rs1 = int(rs1_and_imm[1][1:-1], 0)
+        imm = int(rs1_and_imm[0], 0)
 
         return (
             to_bin(imm, 7, 5)
@@ -116,9 +128,9 @@ class BType(AssemblerType):
     def encode(self, args: list):
         opcode = self.opcode
         funct3 = self.funct3
-        rs1 = int(args[0][1:])
-        rs2 = int(args[1][1:])
-        imm = int(args[2])
+        rs1 = int(args[0][1:], 0)
+        rs2 = int(args[1][1:], 0)
+        imm = int(args[2], 0)
 
         return (
             to_bin(imm, 1, 12)
@@ -137,8 +149,8 @@ class UType(AssemblerType):
 
     def encode(self, args: list):
         opcode = self.opcode
-        rd = int(args[0][1:])
-        imm = int(args[1])
+        rd = int(args[0][1:], 0)
+        imm = int(args[1], 0)
 
         return to_bin(imm, 20) + to_bin(rd, 5) + to_bin(opcode, 7)
 
@@ -148,8 +160,8 @@ class JType(AssemblerType):
 
     def encode(self, args: list):
         opcode = self.opcode
-        rd = int(args[0][1:])
-        imm = int(args[1])
+        rd = int(args[0][1:], 0)
+        imm = int(args[1], 0)
 
         return (
             to_bin(imm, 1, 20)
@@ -164,6 +176,7 @@ class JType(AssemblerType):
 InstMap = {
     "add": RType(opcode=0x33, funct3=0x0, funct7=0x00),
     "sub": RType(opcode=0x33, funct3=0x0, funct7=0x20),
+    "neg": RType(opcode=0x41, funct3=0x0, funct7=0x20),
     "sll": RType(opcode=0x33, funct3=0x1, funct7=0x00),
     "slt": RType(opcode=0x33, funct3=0x2, funct7=0x00),
     "sltu": RType(opcode=0x33, funct3=0x3, funct7=0x00),
@@ -173,6 +186,9 @@ InstMap = {
     "or": RType(opcode=0x33, funct3=0x6, funct7=0x00),
     "and": RType(opcode=0x33, funct3=0x7, funct7=0x00),
     "addi": IType(opcode=0x13, funct3=0x0),
+    "not": IType(opcode=0x43, funct3=0x4),
+    "mv": IType(opcode=0x42, funct3=0x0),
+    "nop": IType(opcode=0x41, funct3=0x0),
     "slti": IType(opcode=0x13, funct3=0x2),
     "sltiu": IType(opcode=0x13, funct3=0x3),
     "xori": IType(opcode=0x13, funct3=0x4),
