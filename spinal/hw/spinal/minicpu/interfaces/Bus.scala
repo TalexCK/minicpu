@@ -21,7 +21,7 @@ case class SimpleBus(config: RiscvConfig) extends Bundle with IMasterSlave {
 
 // define ALU operations
 object AluOp extends SpinalEnum {
-    val ADD, SUB, AND, OR, XOR, SLL, SRL, SRA, SLT, SLTU = newElement()
+    val ADD, SUB, SLL, SLT, SLTU, XOR, SRL, SRA, OR, AND, ADDI, SLTI, SLTIU, XORI, ORI, ANDI, SLLI, SRLI, SRAI, LB, LH, LW, LBU, LHU, JALR, ECALL, EBREAK, SB, SH, SW, BEQ, BNE, BLT, BGE, BLTU, BGEU, LUI, AUIPC, JAL = newElement();
 }
 
 // define control signals bundle(Controller -> Datapath)

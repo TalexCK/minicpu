@@ -19,3 +19,5 @@ ENV/
 *target/
 firmware.asm
 firmware.hex
+
+main.rs
