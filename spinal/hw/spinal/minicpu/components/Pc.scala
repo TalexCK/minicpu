@@ -3,7 +3,7 @@ package minicpu.components
 import minicpu.RiscvConfig
 import spinal.core._
 
-class Pc (config: RiscvConfig) extends Component {
+class Pc(config: RiscvConfig) extends Component {
   val io = new Bundle {
     val pcNext = in(config.addressType)
     val we = in(Bool())
