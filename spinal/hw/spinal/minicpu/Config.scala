@@ -6,7 +6,8 @@ import spinal.core._
 case class RiscvConfig(
     xlen: Int = 32, // register width (RV32I)
     addrWidth: Int = 32,
-    resetVector: Long = 0x00000000l // PC reset value
+    resetVector: Long = 0x00000000L, // PC reset value
+    memorySize: Long = 1024 * 64 // 64 KB memory
 ) {
   // generate UInt types based on xlen and addrWidth
   def wordType = UInt(xlen bits)
