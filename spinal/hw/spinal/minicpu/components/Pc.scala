@@ -13,7 +13,7 @@ class Pc(config: RiscvConfig) extends Component {
   val initValue = U(config.resetVector, config.addrWidth bits)
   val reg = RegInit(initValue)
 
-  when(io.we){
+  when(io.we) {
     reg := io.pcNext
   }
   io.pc := reg
