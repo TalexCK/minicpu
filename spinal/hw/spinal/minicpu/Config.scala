@@ -8,16 +8,16 @@ case class RiscvConfig(
     addrWidth: Int = 32,
     resetVector: Long = 0x00000000l // PC reset value
 ) {
-    // generate UInt types based on xlen and addrWidth
-    def wordType = UInt(xlen bits)
-    def addressType = UInt(addrWidth bits)
+  // generate UInt types based on xlen and addrWidth
+  def wordType = UInt(xlen bits)
+  def addressType = UInt(addrWidth bits)
 }
 
 object ProjectConfig {
-    def spinal = SpinalConfig(
-        targetDirectory = "hw/gen",
-        defaultConfigForClockDomains = ClockDomainConfig(
-            resetActiveLevel = HIGH
-        ),
+  def spinal = SpinalConfig(
+    targetDirectory = "hw/gen",
+    defaultConfigForClockDomains = ClockDomainConfig(
+      resetActiveLevel = HIGH
     )
+  )
 }
