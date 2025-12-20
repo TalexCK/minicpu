@@ -27,6 +27,11 @@ object AluOp extends SpinalEnum {
     newElement();
 }
 
+// define immediate selection types
+object ImmType extends SpinalEnum {
+  val typeI, typeS, typeB, typeU, typeJ = newElement()
+}
+
 // define control signals bundle(Controller -> Datapath)
 case class ControlSignals(config: RiscvConfig) extends Bundle {
   val regWriteEnable = Bool() // enable register write

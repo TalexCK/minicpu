@@ -1,5 +1,6 @@
 package minicpu
 
+import minicpu.interfaces.ImmType
 import spinal.core._
 
 // Parameters for the RISC-V CPU
@@ -14,6 +15,8 @@ case class RiscvConfig(
   def wordType = UInt(xlen bits)
   def addressType = UInt(addrWidth bits)
   def regAddrType = UInt(regAddrWidth bits)
+  def immSelType = ImmType()
+  def instructionType = Bits(xlen bits) // use Bits type for better bit manipulation
 }
 
 object ProjectConfig {
