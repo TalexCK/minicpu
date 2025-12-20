@@ -14,7 +14,6 @@ case class RiscvConfig(
   def wordType = UInt(xlen bits)
   def addressType = UInt(addrWidth bits)
   def regAddrType = UInt(regAddrWidth bits)
-  def dataBitsType = Bits(xlen bits)
 }
 
 object ProjectConfig {
