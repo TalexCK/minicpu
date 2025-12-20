@@ -16,20 +16,31 @@ class RegFile(config: RiscvConfig) extends Component {
 
   val regs = Mem(config.dataBitsType, 32)
 
+  val rs1MemData = regs.readAsync(io.rs1Addr)
+  val rs2MemData = regs.readAsync(io.rs2Addr)
+
   io.rs1Data := Mux(
     io.rs1Addr === 0,
     B(0, config.xlen bits),
-    regs.readAsync(io.rs1Addr)
+    Mux(
+      io.we && io.rdAddr === io.rs1Addr,
+      io.rdData,
+      rs1MemData
+    )
   )
+
   io.rs2Data := Mux(
     io.rs2Addr === 0,
     B(0, config.xlen bits),
-    regs.readAsync(io.rs2Addr)
+    Mux(
+      io.we && io.rdAddr === io.rs2Addr,
+      io.rdData,
+      rs2MemData
+    )
   )
 
   when(io.we && io.rdAddr =/= 0) {
     regs.write(io.rdAddr, io.rdData)
   }
-
 
 }
