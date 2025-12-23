@@ -45,29 +45,13 @@ class Alu(config: RiscvConfig) extends Component {
     is(AluOp.AND) {
       io.bus.result := io.bus.src1 & io.bus.src2
     }
-    is(AluOp.JALR) {
-      io.bus.result := (io.bus.src1 + io.bus.src2) & (~U(1))
-    }
-    is(AluOp.BEQ) {
-      io.bus.result := (io.bus.src1 === io.bus.src2).asUInt
-    }
-    is(AluOp.BNE) {
-      io.bus.result := (io.bus.src1 =/= io.bus.src2).asUInt
-    }
-    is(AluOp.BGE) {
-      io.bus.result := (io.bus.src1.asSInt >= io.bus.src2.asSInt).asUInt
-    }
-    is(AluOp.BGEU) {
-      io.bus.result := (io.bus.src1 >= io.bus.src2).asUInt
-    }
-    is(AluOp.LUI) {
-      io.bus.result := io.bus.src2 << U(12)
-    }
-    is(AluOp.AUIPC) {
-      io.bus.result := io.bus.src1 + (io.bus.src2 << U(12))
+    is(AluOp.COPY_SRC2) {
+      io.bus.result := io.bus.src2
     }
     default {
       io.bus.result := U(0)
     }
   }
+
+  io.bus.zero := (io.bus.result === 0)
 }
