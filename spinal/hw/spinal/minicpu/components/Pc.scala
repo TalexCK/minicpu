@@ -2,20 +2,20 @@ package minicpu.components
 
 import minicpu.RiscvConfig
 import spinal.core._
+import minicpu.interfaces.PcBus
+import spinal.lib.slave
 
 class Pc(config: RiscvConfig) extends Component {
   val io = new Bundle {
-    val pcNext = in(config.addressType)
-    val we = in(Bool())
-    val pc = out(config.addressType)
+    val bus = slave(PcBus(config))
   }
 
   val initValue = U(config.resetVector, config.addrWidth bits)
   val reg = RegInit(initValue)
 
-  when(io.we) {
-    reg := io.pcNext
+  when(io.bus.we) {
+    reg := io.bus.pcNext
   }
-  io.pc := reg
+  io.bus.pc := reg
 
 }
