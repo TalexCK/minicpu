@@ -2,12 +2,12 @@ package minicpu.components
 
 import minicpu.RiscvConfig
 import spinal.core._
-import minicpu.interfaces.SimpleBus
+import minicpu.interfaces.MemoryBus
 import spinal.lib.slave
 
 class Memory(config: RiscvConfig) extends Component {
   val io = new Bundle {
-    val bus = slave(SimpleBus(config))
+    val bus = slave(MemoryBus(config))
   }
 
   val byteCount = config.memorySize
