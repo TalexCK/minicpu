@@ -10,10 +10,10 @@ case class RiscvConfig(
     memorySize: Long = 1024 * 64, // 64 KB memory
     regAddrWidth: Int = 5 // 5 bits register address
 ) {
-  // generate UInt types based on xlen and addrWidth
   def wordType = UInt(xlen bits)
   def addressType = UInt(addrWidth bits)
   def regAddrType = UInt(regAddrWidth bits)
+  def instructionType = Bits(xlen bits)
 }
 
 object ProjectConfig {
