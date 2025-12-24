@@ -21,13 +21,23 @@ class ImmGen(config: RiscvConfig) extends Component {
       io.bus.imm := resizeImm(inst(31 downto 25) ## inst(11 downto 7))
     }
     is(ImmType.B) {
-      io.bus.imm := resizeImm(inst(31) ## inst(7) ## inst(30 downto 25) ## inst(11 downto 8) ## B(0, 1 bits))
+      io.bus.imm := resizeImm(
+        inst(31) ## inst(7) ## inst(30 downto 25) ## inst(11 downto 8) ## B(
+          0,
+          1 bits
+        )
+      )
     }
     is(ImmType.U) {
       io.bus.imm := resizeImm(inst(31 downto 12) ## B(0, 12 bits))
     }
     is(ImmType.J) {
-      io.bus.imm := resizeImm(inst(31) ## inst(19 downto 12) ## inst(20) ## inst(30 downto 21) ## B(0, 1 bits))
+      io.bus.imm := resizeImm(
+        inst(31) ## inst(19 downto 12) ## inst(20) ## inst(30 downto 21) ## B(
+          0,
+          1 bits
+        )
+      )
     }
     default {
       io.bus.imm := U(0, config.xlen bits)

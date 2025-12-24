@@ -10,7 +10,7 @@ object ImmType extends SpinalEnum {
 
 case class ImmGenBus(config: RiscvConfig) extends Bundle with IMasterSlave {
   val instruction = config.instructionType
-  val immSel = config.immSelType
+  val immSel = ImmType()
   val imm = config.wordType
 
   override def asMaster(): Unit = {
