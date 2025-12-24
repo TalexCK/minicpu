@@ -11,6 +11,8 @@ class Alu(config: RiscvConfig) extends Component {
     val bus = slave(AluBus(config))
   }
 
+  io.bus.result := U(0, config.xlen bits)
+
   switch(io.bus.op) {
     is(AluOp.ADD) {
       io.bus.result := io.bus.src1 + io.bus.src2
@@ -24,9 +26,10 @@ class Alu(config: RiscvConfig) extends Component {
     }
     is(AluOp.SLT) {
       io.bus.result := (io.bus.src1.asSInt < io.bus.src2.asSInt).asUInt
+        .resize(config.xlen)
     }
     is(AluOp.SLTU) {
-      io.bus.result := (io.bus.src1 < io.bus.src2).asUInt
+      io.bus.result := (io.bus.src1 < io.bus.src2).asUInt.resize(config.xlen)
     }
     is(AluOp.XOR) {
       io.bus.result := io.bus.src1 ^ io.bus.src2
@@ -47,9 +50,6 @@ class Alu(config: RiscvConfig) extends Component {
     }
     is(AluOp.COPY_SRC2) {
       io.bus.result := io.bus.src2
-    }
-    default {
-      io.bus.result := U(0)
     }
   }
 

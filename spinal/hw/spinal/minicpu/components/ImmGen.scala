@@ -39,8 +39,5 @@ class ImmGen(config: RiscvConfig) extends Component {
         )
       )
     }
-    default {
-      io.bus.imm := U(0, config.xlen bits)
-    }
   }
 }

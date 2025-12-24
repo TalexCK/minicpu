@@ -85,8 +85,8 @@ class CpuTop(config: RiscvConfig) extends Component {
   nextPc := currentPc + 4
 
   val branchTarget = currentPc + immGen.io.bus.imm
-  val jalrTarget = alu.io.bus.result
-  jalrTarget(0) := False
+  val jalrTarget =
+    (alu.io.bus.result.resize(config.addrWidth) & ~U(1, config.addrWidth bits))
 
   val branchTaken = False
   when(control.io.bus.branch) {

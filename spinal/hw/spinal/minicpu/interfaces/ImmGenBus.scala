@@ -14,7 +14,7 @@ case class ImmGenBus(config: RiscvConfig) extends Bundle with IMasterSlave {
   val imm = config.wordType
 
   override def asMaster(): Unit = {
-    out(imm)
-    in(instruction, immSel)
+    in(imm)
+    out(instruction, immSel)
   }
 }
