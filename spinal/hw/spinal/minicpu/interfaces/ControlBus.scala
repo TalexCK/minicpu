@@ -10,8 +10,8 @@ object AluCtrlOp extends SpinalEnum {
 
 case class AluControlBus(config: RiscvConfig) extends Bundle with IMasterSlave {
   val aluCtrlOp = AluCtrlOp()
-  val funct3 = Bits(3 bits)
-  val funct7 = Bits(7 bits)
+  val funct3 = UInt(3 bits)
+  val funct7 = UInt(7 bits)
   val aluOp = AluOp()
 
   override def asMaster(): Unit = {
@@ -23,7 +23,7 @@ case class AluControlBus(config: RiscvConfig) extends Bundle with IMasterSlave {
 case class ControlUnitBus(config: RiscvConfig)
     extends Bundle
     with IMasterSlave {
-  val opcode = Bits(7 bits)
+  val opcode = UInt(7 bits)
   val regWriteEnable = Bool()
   val aluCtrlOp = AluCtrlOp()
   val aluSrc1 = Bool() // 0: register, 1: PC

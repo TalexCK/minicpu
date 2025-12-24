@@ -9,7 +9,7 @@ object ImmType extends SpinalEnum {
 }
 
 case class ImmGenBus(config: RiscvConfig) extends Bundle with IMasterSlave {
-  val instruction = config.instructionType
+  val instruction = config.wordType
   val immSel = ImmType()
   val imm = config.wordType
 

@@ -11,7 +11,7 @@ class ImmGen(config: RiscvConfig) extends Component {
   }
 
   def resizeImm(src: Bits): UInt = src.asSInt.resize(config.xlen).asUInt
-  val inst = io.bus.instruction
+  val inst = io.bus.instruction.asBits
 
   switch(io.bus.immSel) {
     is(ImmType.I) {

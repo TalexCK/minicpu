@@ -23,36 +23,36 @@ class AluControl(config: RiscvConfig) extends Component {
     }
     is(AluCtrlOp.R_TYPE, AluCtrlOp.I_TYPE) {
       switch(io.bus.funct3) {
-        is(B"000") {
+        is(U"3'b000") {
           when(io.bus.aluCtrlOp === AluCtrlOp.R_TYPE && io.bus.funct7(5)) {
             io.bus.aluOp := AluOp.SUB
           } otherwise {
             io.bus.aluOp := AluOp.ADD
           }
         }
-        is(B"001") {
+        is(U"3'b001") {
           io.bus.aluOp := AluOp.SLL
         }
-        is(B"010") {
+        is(U"3'b010") {
           io.bus.aluOp := AluOp.SLT
         }
-        is(B"011") {
+        is(U"3'b011") {
           io.bus.aluOp := AluOp.SLTU
         }
-        is(B"100") {
+        is(U"3'b100") {
           io.bus.aluOp := AluOp.XOR
         }
-        is(B"101") {
+        is(U"3'b101") {
           when(io.bus.funct7(5)) {
             io.bus.aluOp := AluOp.SRA
           } otherwise {
             io.bus.aluOp := AluOp.SRL
           }
         }
-        is(B"110") {
+        is(U"3'b110") {
           io.bus.aluOp := AluOp.OR
         }
-        is(B"111") {
+        is(U"3'b111") {
           io.bus.aluOp := AluOp.AND
         }
       }
