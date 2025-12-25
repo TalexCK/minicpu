@@ -1,0 +1,6 @@
+[target.riscv32i-unknown-none-elf]
+rustflags = [
+    "-C", "link-arg=-Tlinker.ld",
+    "-C", "link-arg=--nmagic",
+    "-C", "relocation-model=static",
+]
