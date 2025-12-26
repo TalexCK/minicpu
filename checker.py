@@ -7,8 +7,6 @@ from pathlib import Path
 
 import assembler.main as assembler
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
 
 def text_bits_to_binary(input_path, output_path):
     try:
@@ -106,7 +104,13 @@ def process_spike_log(input_file, output_file):
         with open(input_file, 'r') as f:
             lines = f.readlines()
 
-        target_lines = lines[6:506]
+        start_line = 0
+        for line in lines:
+            if line.startswith("(spike) core   0: 0x80000000"):
+                start_line = lines.index(line)
+                break
+
+        target_lines = lines[start_line:start_line+500]
 
         cleaned_lines = []
         for line in target_lines:
@@ -126,8 +130,7 @@ def process_spike_log(input_file, output_file):
 
 def run_spinal_sim():
     print("--- Starting SpinalHDL Simulation ---")
-
-    spinal_path = os.path.join(script_dir, "spinal")
+    spinal_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "spinal")
 
     sim_env = os.environ.copy()
     current_path = sim_env.get("PATH", "")
@@ -178,14 +181,11 @@ def parse_line_values(line: str):
 
 
 def normalize_operand_value(op_str: str) -> str:
-    # 这一步是关键：正则会吃掉数字前面的 + 或 - 以及空格
-    # Group 1: 符号 (+/-) 可选
-    # Group 2: 数值 (Hex 或 Dec)
     token_pattern = re.compile(r'([+-])?\s*(0x[0-9a-fA-F]+|\d+)')
 
     def replace_num(match):
-        sign_str = match.group(1)  # "+" or "-" or None
-        num_str = match.group(2)  # "0x14" or "20"
+        sign_str = match.group(1)
+        num_str = match.group(2)
 
         try:
             if num_str.lower().startswith("0x"):
@@ -196,18 +196,13 @@ def normalize_operand_value(op_str: str) -> str:
             if sign_str == '-':
                 val = -val
 
-            # 强制转换为32位无符号整数进行比较
-            # -20 (0xFFFFFFEC) & 0xFFFFFFFF -> 4294967276
-            # 0xFFFFFFEC      & 0xFFFFFFFF -> 4294967276
             val_u32 = val & 0xFFFFFFFF
 
             return f"{{NUM:{val_u32}}}"
         except ValueError:
             return match.group(0)
 
-    # 替换所有数值为统一格式
     normalized = token_pattern.sub(replace_num, op_str)
-    # 移除剩余的所有空格
     normalized = normalized.replace(" ", "")
     return normalized
 

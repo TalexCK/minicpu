@@ -29,7 +29,7 @@ object CpuTopSim extends App {
 
   private def signExtend(value: Int, bits: Int): Int = (value << (32 - bits)) >> (32 - bits)
 
-  private def u32(x: scala.math.BigInt): Long = java.lang.Integer.toUnsignedLong(x.intValue)
+  private def toUnsigned32(x: scala.math.BigInt): Long = java.lang.Integer.toUnsignedLong(x.intValue)
 
   private def fmtMnemonic(mn: String, ops: String): String = {
     val left = String.format("%-7s", mn)
@@ -332,8 +332,8 @@ object CpuTopSim extends App {
       var lastPc: Long = -1L
 
       while (i < maxInstructions && samePcStreak < 2000) {
-        val pc = u32(dut.pc.io.bus.pc.toBigInt)
-        val inst = u32(dut.iMem.io.bus.readData.toBigInt)
+        val pc = toUnsigned32(dut.pc.io.bus.pc.toBigInt)
+        val inst = toUnsigned32(dut.iMem.io.bus.readData.toBigInt)
         val asm = disasm(pc, inst)
         val line = f"core   0: 0x$pc%08x (0x$inst%08x) $asm"
         println(line)
