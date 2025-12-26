@@ -7,6 +7,9 @@ class AssemblerType:
             setattr(self, key, value)
 
 
+pc = 0x0000000
+
+
 # Types
 class RType(AssemblerType):
     opcode: int
@@ -118,7 +121,7 @@ class BType(AssemblerType):
         funct3 = self.funct3
         rs1 = int(args[0][1:], 0)
         rs2 = int(args[1][1:], 0)
-        imm = int(args[2], 0)
+        imm = int(args[2], 0) - pc
 
         return (
             to_bin(imm, 1, 12)
@@ -139,7 +142,8 @@ class UType(AssemblerType):
         opcode = self.opcode
         rd = int(args[0][1:], 0)
         imm = int(args[1], 0)
-
+        if opcode == 0x17:
+            imm = imm - pc
         return to_bin(imm, 20) + to_bin(rd, 5) + to_bin(opcode, 7)
 
 
@@ -149,7 +153,7 @@ class JType(AssemblerType):
     def encode(self, args: list):
         opcode = self.opcode
         rd = int(args[0][1:], 0)
-        imm = int(args[1], 0)
+        imm = int(args[1], 0) - pc
 
         return (
             to_bin(imm, 1, 20)
@@ -221,8 +225,10 @@ def encode_code(code: str):
 
 
 def encode_file(path: str):
+    global pc
     assemble_code = []
     for i in read_file_as_list(path):
         assemble_code.append(encode_code(i))
+        pc += 0x00000004
 
     write_file("./assembler/firmware.hex", assemble_code)
