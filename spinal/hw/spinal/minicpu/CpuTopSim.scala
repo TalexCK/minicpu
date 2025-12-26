@@ -210,7 +210,7 @@ object CpuTopSim extends App {
     val mem = mutable.LinkedHashMap.empty[Long, Int]
 
     var haveAt = false
-    var wordAddr: Long = 0x00000000L
+    var wordAddr: Long = 0x80000000L
 
     def parseWordToken(tok: String): Option[Int] = {
       val t = tok.trim
@@ -322,14 +322,10 @@ object CpuTopSim extends App {
       if (outFile.getParentFile != null) outFile.getParentFile.mkdirs()
       val out = new PrintWriter(new BufferedWriter(new FileWriter(outFile)))
 
-      println(s"(spike) run $maxInstructions")
-      out.println(s"(spike) run $maxInstructions")
-
       dut.clockDomain.forkStimulus(period = 10)
       dut.clockDomain.assertReset()
-      dut.clockDomain.waitRisingEdge(5)
+      dut.clockDomain.waitRisingEdge()
       dut.clockDomain.deassertReset()
-      sleep(1)
 
       var i = 0
       var samePcStreak = 0
