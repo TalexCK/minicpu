@@ -11,25 +11,57 @@ import scala.jdk.CollectionConverters._
 object CpuTopSim extends App {
   private val config = RiscvConfig()
 
-  private val firmwarePath = sys.props.getOrElse("firmware", "../assembler/firmware.hex")
-  private val commitLogPath = sys.props.getOrElse("commitLog", "../logs/minicpu.log")
+  private val firmwarePath =
+    sys.props.getOrElse("firmware", "../assembler/firmware.hex")
+  private val commitLogPath =
+    sys.props.getOrElse("commitLog", "../logs/minicpu.log")
   private val maxInstructions = sys.props
     .get("maxInstructions")
     .flatMap(s => scala.util.Try(s.toInt).toOption)
     .getOrElse(500)
 
   private val abiNames = Array(
-    "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", "s1",
-    "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
-    "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11",
-    "t3", "t4", "t5", "t6"
+    "zero",
+    "ra",
+    "sp",
+    "gp",
+    "tp",
+    "t0",
+    "t1",
+    "t2",
+    "s0",
+    "s1",
+    "a0",
+    "a1",
+    "a2",
+    "a3",
+    "a4",
+    "a5",
+    "a6",
+    "a7",
+    "s2",
+    "s3",
+    "s4",
+    "s5",
+    "s6",
+    "s7",
+    "s8",
+    "s9",
+    "s10",
+    "s11",
+    "t3",
+    "t4",
+    "t5",
+    "t6"
   )
 
   private def reg(i: Int): String = abiNames(i & 31)
 
-  private def signExtend(value: Int, bits: Int): Int = (value << (32 - bits)) >> (32 - bits)
+  private def signExtend(value: Int, bits: Int): Int =
+    (value << (32 - bits)) >> (32 - bits)
 
-  private def toUnsigned32(x: scala.math.BigInt): Long = java.lang.Integer.toUnsignedLong(x.intValue)
+  private def toUnsigned32(x: scala.math.BigInt): Long =
+    java.lang.Integer.toUnsignedLong(x.intValue)
 
   private def fmtMnemonic(mn: String, ops: String): String = {
     val left = String.format("%-7s", mn)
@@ -46,7 +78,7 @@ object CpuTopSim extends App {
     case 0x342 => "mcause"
     case 0x343 => "mtval"
     case 0x344 => "mip"
-    case 0xF14 => "mhartid"
+    case 0xf14 => "mhartid"
     case _     => f"0x$csr%03x"
   }
 
@@ -59,7 +91,10 @@ object CpuTopSim extends App {
     val funct7 = ((inst >>> 25) & 0x7fL).toInt
 
     val immI = signExtend((inst >>> 20).toInt, 12)
-    val immS = signExtend((((inst >>> 25) & 0x7fL).toInt << 5) | (((inst >>> 7) & 0x1fL).toInt), 12)
+    val immS = signExtend(
+      (((inst >>> 25) & 0x7fL).toInt << 5) | (((inst >>> 7) & 0x1fL).toInt),
+      12
+    )
     val immB = signExtend(
       ((((inst >>> 31) & 0x1L).toInt) << 12) |
         ((((inst >>> 7) & 0x1L).toInt) << 11) |
@@ -140,7 +175,8 @@ object CpuTopSim extends App {
             fmtMnemonic("slli", s"${reg(rd)}, ${reg(rs1)}, $shamt")
           case 5 =>
             val shamt = ((inst >>> 20) & 0x1fL).toInt
-            if (funct7 == 0x20) fmtMnemonic("srai", s"${reg(rd)}, ${reg(rs1)}, $shamt")
+            if (funct7 == 0x20)
+              fmtMnemonic("srai", s"${reg(rd)}, ${reg(rs1)}, $shamt")
             else fmtMnemonic("srli", s"${reg(rd)}, ${reg(rs1)}, $shamt")
           case _ => fmtMnemonic("opimm?", "")
         }
@@ -185,8 +221,12 @@ object CpuTopSim extends App {
           val csrN = csrName(csr)
           funct3 match {
             case 1 => fmtMnemonic("csrrw", s"${reg(rd)}, $csrN, ${reg(rs1)}")
-            case 2 => if (rs1 == 0) fmtMnemonic("csrr", s"${reg(rd)}, $csrN") else fmtMnemonic("csrrs", s"${reg(rd)}, $csrN, ${reg(rs1)}")
-            case 3 => if (rs1 == 0) fmtMnemonic("csrr", s"${reg(rd)}, $csrN") else fmtMnemonic("csrrc", s"${reg(rd)}, $csrN, ${reg(rs1)}")
+            case 2 =>
+              if (rs1 == 0) fmtMnemonic("csrr", s"${reg(rd)}, $csrN")
+              else fmtMnemonic("csrrs", s"${reg(rd)}, $csrN, ${reg(rs1)}")
+            case 3 =>
+              if (rs1 == 0) fmtMnemonic("csrr", s"${reg(rd)}, $csrN")
+              else fmtMnemonic("csrrc", s"${reg(rd)}, $csrN, ${reg(rs1)}")
             case 5 => fmtMnemonic("csrrwi", s"${reg(rd)}, $csrN, ${rs1}")
             case 6 => fmtMnemonic("csrrsi", s"${reg(rd)}, $csrN, ${rs1}")
             case 7 => fmtMnemonic("csrrci", s"${reg(rd)}, $csrN, ${rs1}")
@@ -215,8 +255,10 @@ object CpuTopSim extends App {
     def parseWordToken(tok: String): Option[Int] = {
       val t = tok.trim
       if (t.isEmpty) None
-      else if (t.matches("[01]{32}")) Some(java.lang.Long.parseUnsignedLong(t, 2).toInt)
-      else if (t.matches("[0-9a-fA-F]{1,8}")) Some(java.lang.Long.parseUnsignedLong(t, 16).toInt)
+      else if (t.matches("[01]{32}"))
+        Some(java.lang.Long.parseUnsignedLong(t, 2).toInt)
+      else if (t.matches("[0-9a-fA-F]{1,8}"))
+        Some(java.lang.Long.parseUnsignedLong(t, 16).toInt)
       else None
     }
 
@@ -245,7 +287,8 @@ object CpuTopSim extends App {
                 val b1 = bytes(i + 1)
                 val b2 = bytes(i + 2)
                 val b3 = bytes(i + 3)
-                val w = (b0 & 0xff) | ((b1 & 0xff) << 8) | ((b2 & 0xff) << 16) | ((b3 & 0xff) << 24)
+                val w =
+                  (b0 & 0xff) | ((b1 & 0xff) << 8) | ((b2 & 0xff) << 16) | ((b3 & 0xff) << 24)
                 val wa = ((byteAddr0 + i.toLong) >>> 2)
                 mem.update(wa, w)
                 i += 4
@@ -291,7 +334,8 @@ object CpuTopSim extends App {
   private def preloadMem(dut: CpuTop, words: Map[Long, Int]): Unit = {
     val iDepth = dut.iMem.mem.wordCount
     val dDepth = dut.dMem.mem.wordCount
-    if (iDepth <= 0 || dDepth <= 0) throw new RuntimeException("Memory depth is not positive")
+    if (iDepth <= 0 || dDepth <= 0)
+      throw new RuntimeException("Memory depth is not positive")
 
     words.foreach { case (wa, w) =>
       val idxI = (java.lang.Long.remainderUnsigned(wa, iDepth.toLong)).toInt
@@ -304,8 +348,7 @@ object CpuTopSim extends App {
 
   private val firmwareWords = loadFirmwareHex(firmwarePath)
 
-  SimConfig
-    .withWave
+  SimConfig.withWave
     .compile {
       val dut = new CpuTop(config)
       dut.pc.io.bus.pc.simPublic()

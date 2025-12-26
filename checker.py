@@ -11,15 +11,15 @@ import assembler.main as assembler
 def text_bits_to_binary(input_path, output_path):
     try:
         print(f"[-] Processing: {input_path}")
-        with open(input_path, 'r', encoding='utf-8') as f:
+        with open(input_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        bits = "".join(c for c in content if c in '01')
-        pack_format = '<I'
+        bits = "".join(c for c in content if c in "01")
+        pack_format = "<I"
 
-        with open(output_path, 'wb') as f_out:
+        with open(output_path, "wb") as f_out:
             for i in range(0, len(bits), 32):
-                chunk = bits[i:i + 32]
+                chunk = bits[i : i + 32]
                 if len(chunk) == 32:
                     val = int(chunk, 2)
                     f_out.write(struct.pack(pack_format, val))
@@ -41,7 +41,7 @@ def main():
     bin_file = base_dir / "firmware.bin"
     rel_elf = base_dir / "firmware_rel.elf"
     final_elf = base_dir / "firmware.elf"
-    link_script = base_dir / "link.ld"
+    link_script = base_dir / "linker.ld"
 
     log_dir = base_dir / "logs"
     log_file = log_dir / "spike.log"
@@ -57,15 +57,29 @@ def main():
     text_bits_to_binary(input_hex, bin_file)
 
     cmd_objcopy = [
-        OBJCOPY, "-I", "binary", "-O", "elf32-littleriscv",
-        "--rename-section", ".data=.text,contents,alloc,load,readonly,code",
-        str(bin_file), str(rel_elf)
+        OBJCOPY,
+        "-I",
+        "binary",
+        "-O",
+        "elf32-littleriscv",
+        "--rename-section",
+        ".data=.text,contents,alloc,load,readonly,code",
+        str(bin_file),
+        str(rel_elf),
     ]
     run_command(cmd_objcopy)
 
     cmd_ld = [
-        LD, "-flavor", "gnu", "-m", "elf32lriscv", "-T", str(link_script),
-        "-o", str(final_elf), str(rel_elf)
+        LD,
+        "-flavor",
+        "gnu",
+        "-m",
+        "elf32lriscv",
+        "-T",
+        str(link_script),
+        "-o",
+        str(final_elf),
+        str(rel_elf),
     ]
     run_command(cmd_ld)
 
@@ -81,7 +95,7 @@ def main():
                 stdout=f_log,
                 stderr=subprocess.STDOUT,
                 timeout=0.1,
-                check=True
+                check=True,
             )
         except subprocess.TimeoutExpired:
             print("[*] Timeout reached. Terminating.")
@@ -101,7 +115,7 @@ def main():
 
 def process_spike_log(input_file, output_file):
     try:
-        with open(input_file, 'r') as f:
+        with open(input_file, "r") as f:
             lines = f.readlines()
 
         start_line = 0
@@ -110,14 +124,14 @@ def process_spike_log(input_file, output_file):
                 start_line = lines.index(line)
                 break
 
-        target_lines = lines[start_line:start_line+500]
+        target_lines = lines[start_line : start_line + 500]
 
         cleaned_lines = []
         for line in target_lines:
             new_line = line.replace("(spike) ", "", 1)
             cleaned_lines.append(new_line)
 
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             f.writelines(cleaned_lines)
 
         print(f"[-] Log processed: Extracted lines 7-506 to {output_file}")
@@ -130,7 +144,10 @@ def process_spike_log(input_file, output_file):
 
 def run_spinal_sim():
     print("--- Starting SpinalHDL Simulation ---")
-    spinal_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "spinal")
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    spinal_path = os.path.join(script_dir, "spinal")
 
     sim_env = os.environ.copy()
     current_path = sim_env.get("PATH", "")
@@ -138,7 +155,10 @@ def run_spinal_sim():
 
     cmd = [
         "sbt",
-        "runMain minicpu.CpuTopSim -Dfirmware=../assembler/firmware.hex -DcommitLog=commit.log -DmaxInstructions=500"
+        "runMain minicpu.CpuTopSim",
+        "-Dfirmware=../assembler/firmware.hex",
+        "-DcommitLog=commit.log",
+        "-DmaxInstructions=500",
     ]
 
     try:
@@ -163,7 +183,9 @@ def read_file_as_list(path: str, encoding: str = "utf-8") -> list[str]:
 
 def parse_line_values(line: str):
     line = line.strip()
-    pattern = re.compile(r"core\s+\d+:\s+(0x[0-9a-fA-F]+)\s+\((0x[0-9a-fA-F]+)\)\s+(.*)")
+    pattern = re.compile(
+        r"core\s+\d+:\s+(0x[0-9a-fA-F]+)\s+\((0x[0-9a-fA-F]+)\)\s+(.*)"
+    )
     match = pattern.search(line)
 
     if not match:
@@ -181,7 +203,7 @@ def parse_line_values(line: str):
 
 
 def normalize_operand_value(op_str: str) -> str:
-    token_pattern = re.compile(r'([+-])?\s*(0x[0-9a-fA-F]+|\d+)')
+    token_pattern = re.compile(r"([+-])?\s*(0x[0-9a-fA-F]+|\d+)")
 
     def replace_num(match):
         sign_str = match.group(1)
@@ -193,7 +215,7 @@ def normalize_operand_value(op_str: str) -> str:
             else:
                 val = int(num_str, 10)
 
-            if sign_str == '-':
+            if sign_str == "-":
                 val = -val
 
             val_u32 = val & 0xFFFFFFFF
@@ -251,7 +273,9 @@ def check_logs():
             err_num += 1
 
     if len(minicpu_log) != len(spike_log):
-        print(f"[!] Warning: Log lengths differ. Spinal: {len(minicpu_log)}, Spike: {len(spike_log)}")
+        print(
+            f"[!] Warning: Log lengths differ. Spinal: {len(minicpu_log)}, Spike: {len(spike_log)}"
+        )
 
     if err_num == 0:
         print("[-] No Mismatches Found, Run Correctly!")
