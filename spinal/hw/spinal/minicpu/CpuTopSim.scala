@@ -12,7 +12,7 @@ object CpuTopSim extends App {
   private val config = RiscvConfig()
 
   private val firmwarePath = sys.props.getOrElse("firmware", "../assembler/firmware.hex")
-  private val commitLogPath = sys.props.getOrElse("commitLog", "commit.log")
+  private val commitLogPath = sys.props.getOrElse("commitLog", "../logs/minicpu.log")
   private val maxInstructions = sys.props
     .get("maxInstructions")
     .flatMap(s => scala.util.Try(s.toInt).toOption)

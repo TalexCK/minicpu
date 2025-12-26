@@ -36,6 +36,11 @@ def build_and_dump() -> None:
     print(f"--- ASM generated at {output_asm_path} ---")
 
 
+def generate_hex():
+    build_and_dump()
+    encode_file(os.path.join(script_dir, "firmware.asm"))
+
+
 if __name__ == "__main__":
     build_and_dump()
 
