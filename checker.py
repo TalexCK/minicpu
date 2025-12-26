@@ -86,7 +86,7 @@ def main():
     log_dir.mkdir(parents=True, exist_ok=True)
     cmd_spike = [SPIKE, "-d", "--isa=rv32imac", str(final_elf)]
 
-    print(f"[-] Running Spike (0.1s timeout) -> {log_file}")
+    print(f"[-] Running Spike -> {log_file}")
 
     with open(log_file, "w") as f_log:
         try:
