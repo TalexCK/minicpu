@@ -260,6 +260,9 @@ def check_logs():
 
 
 if __name__ == "__main__":
-    assembler.generate_hex()
+    if '-d' in sys.argv:
+        assembler.generate_hex_directly()
+    else:
+        assembler.generate_hex()
     main()
     check_logs()

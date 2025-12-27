@@ -41,6 +41,10 @@ def generate_hex():
     encode_file(os.path.join(script_dir, "firmware.asm"))
 
 
+def generate_hex_directly():
+    encode_file(os.path.join(script_dir, "firmware.asm"))
+
+
 if __name__ == "__main__":
     build_and_dump()
 
