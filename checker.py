@@ -19,7 +19,7 @@ def text_bits_to_binary(input_path, output_path):
 
         with open(output_path, "wb") as f_out:
             for i in range(0, len(bits), 32):
-                chunk = bits[i : i + 32]
+                chunk = bits[i: i + 32]
                 if len(chunk) == 32:
                     val = int(chunk, 2)
                     f_out.write(struct.pack(pack_format, val))
@@ -124,7 +124,7 @@ def process_spike_log(input_file, output_file):
                 start_line = lines.index(line)
                 break
 
-        target_lines = lines[start_line : start_line + 500]
+        target_lines = lines[start_line: start_line + 500]
 
         cleaned_lines = []
         for line in target_lines:
@@ -134,7 +134,7 @@ def process_spike_log(input_file, output_file):
         with open(output_file, "w") as f:
             f.writelines(cleaned_lines)
 
-        print(f"[-] Log processed: Extracted lines 7-506 to {output_file}")
+        print(f"[-] Log processed: Extracted lines to {output_file}")
 
     except FileNotFoundError:
         print(f"[!] Error: File {input_file} not found.")

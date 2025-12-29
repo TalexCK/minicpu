@@ -7,7 +7,7 @@ class AssemblerType:
             setattr(self, key, value)
 
 
-pc = 0x0000000
+pc = 0x00000000
 
 
 # Types
@@ -25,12 +25,12 @@ class RType(AssemblerType):
         rs2 = int(args[2][1:], 0)
 
         return (
-            to_bin(funct7, 7)
-            + to_bin(rs2, 5)
-            + to_bin(rs1, 5)
-            + to_bin(funct3, 3)
-            + to_bin(rd, 5)
-            + to_bin(opcode, 7)
+                to_bin(funct7, 7)
+                + to_bin(rs2, 5)
+                + to_bin(rs1, 5)
+                + to_bin(funct3, 3)
+                + to_bin(rd, 5)
+                + to_bin(opcode, 7)
         )
 
 
@@ -58,11 +58,11 @@ class IType(AssemblerType):
             rs1 = int(rs1_and_imm[1][1:-1], 0)
             imm = int(rs1_and_imm[0], 0)
             return (
-                to_bin(imm, 12)
-                + to_bin(rs1, 5)
-                + to_bin(funct3, 3)
-                + to_bin(rd, 5)
-                + to_bin(opcode, 7)
+                    to_bin(imm, 12)
+                    + to_bin(rs1, 5)
+                    + to_bin(funct3, 3)
+                    + to_bin(rd, 5)
+                    + to_bin(opcode, 7)
             )
         else:
             funct3 = self.funct3
@@ -73,20 +73,20 @@ class IType(AssemblerType):
             if if_funct7:
                 funct7 = self.funct7
                 return (
-                    to_bin(funct7, 7)
-                    + to_bin(imm, 5)
-                    + to_bin(rs1, 5)
-                    + to_bin(funct3, 3)
-                    + to_bin(rd, 5)
-                    + to_bin(opcode, 7)
+                        to_bin(funct7, 7)
+                        + to_bin(imm, 5)
+                        + to_bin(rs1, 5)
+                        + to_bin(funct3, 3)
+                        + to_bin(rd, 5)
+                        + to_bin(opcode, 7)
                 )
             else:
                 return (
-                    to_bin(imm, 12)
-                    + to_bin(rs1, 5)
-                    + to_bin(funct3, 3)
-                    + to_bin(rd, 5)
-                    + to_bin(opcode, 7)
+                        to_bin(imm, 12)
+                        + to_bin(rs1, 5)
+                        + to_bin(funct3, 3)
+                        + to_bin(rd, 5)
+                        + to_bin(opcode, 7)
                 )
 
 
@@ -103,12 +103,12 @@ class SType(AssemblerType):
         imm = int(rs1_and_imm[0], 0)
 
         return (
-            to_bin(imm, 7, 5)
-            + to_bin(rs2, 5)
-            + to_bin(rs1, 5)
-            + to_bin(funct3, 3)
-            + to_bin(imm, 5)
-            + to_bin(opcode, 7)
+                to_bin(imm, 7, 5)
+                + to_bin(rs2, 5)
+                + to_bin(rs1, 5)
+                + to_bin(funct3, 3)
+                + to_bin(imm, 5)
+                + to_bin(opcode, 7)
         )
 
 
@@ -124,14 +124,14 @@ class BType(AssemblerType):
         imm = int(args[2], 0) - pc
 
         return (
-            to_bin(imm, 1, 12)
-            + to_bin(imm, 6, 5)
-            + to_bin(rs2, 5)
-            + to_bin(rs1, 5)
-            + to_bin(funct3, 3)
-            + to_bin(imm, 4, 1)
-            + to_bin(imm, 1, 11)
-            + to_bin(opcode, 7)
+                to_bin(imm, 1, 12)
+                + to_bin(imm, 6, 5)
+                + to_bin(rs2, 5)
+                + to_bin(rs1, 5)
+                + to_bin(funct3, 3)
+                + to_bin(imm, 4, 1)
+                + to_bin(imm, 1, 11)
+                + to_bin(opcode, 7)
         )
 
 
@@ -156,12 +156,12 @@ class JType(AssemblerType):
         imm = int(args[1], 0) - pc
 
         return (
-            to_bin(imm, 1, 20)
-            + to_bin(imm, 10, 1)
-            + to_bin(imm, 1, 11)
-            + to_bin(imm, 8, 12)
-            + to_bin(rd, 5)
-            + to_bin(opcode, 7)
+                to_bin(imm, 1, 20)
+                + to_bin(imm, 10, 1)
+                + to_bin(imm, 1, 11)
+                + to_bin(imm, 8, 12)
+                + to_bin(rd, 5)
+                + to_bin(opcode, 7)
         )
 
 
@@ -211,8 +211,8 @@ InstMap = {
 # transform number to binary string
 def to_bin(num: int, length: int, start: int = 0):
     if num < 0:
-        return (bin(num & 0xFFFFFFFF)[2:].zfill(32))[32 - start - length : 32 - start]
-    return bin(num)[2:].zfill(32)[32 - start - length : 32 - start]
+        return (bin(num & 0xFFFFFFFF)[2:].zfill(32))[32 - start - length: 32 - start]
+    return bin(num)[2:].zfill(32)[32 - start - length: 32 - start]
 
 
 def encode_code(code: str):
