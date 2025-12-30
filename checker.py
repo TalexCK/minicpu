@@ -134,7 +134,7 @@ def process_spike_log(input_file, output_file):
         with open(output_file, "w") as f:
             f.writelines(cleaned_lines)
 
-        print(f"[-] Log processed: Extracted lines 7-506 to {output_file}")
+        print(f"[-] Log processed: Extracted lines to {output_file}")
 
     except FileNotFoundError:
         print(f"[!] Error: File {input_file} not found.")

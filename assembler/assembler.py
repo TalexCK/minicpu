@@ -7,7 +7,7 @@ class AssemblerType:
             setattr(self, key, value)
 
 
-pc = 0x0000000
+pc = 0x00000000
 
 
 # Types

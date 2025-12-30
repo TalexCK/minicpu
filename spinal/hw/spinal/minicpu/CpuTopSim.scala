@@ -118,8 +118,14 @@ object CpuTopSim extends App {
         fmtMnemonic("auipc", s"${reg(rd)}, 0x${(immU >>> 12).toHexString}")
 
       case 0x6f =>
-        if (rd == 0) fmtMnemonic("j", s"pc + 0x${immJ.toHexString}")
-        else fmtMnemonic("jal", s"${reg(rd)}, pc + 0x${immJ.toHexString}")
+        val off =
+          if (immJ < 0) s"pc - 0x${(-immJ).toHexString}"
+          else s"pc + 0x${immJ.toHexString}"
+
+        if (rd == 1)
+          fmtMnemonic("jal", off)
+        else
+          fmtMnemonic("jal", s"${reg(rd)}, $off")
 
       case 0x67 =>
         if (rd == 0 && rs1 == 1 && immI == 0) fmtMnemonic("ret", "")
