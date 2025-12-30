@@ -127,7 +127,6 @@ object CpuTopSim extends App {
         else
           fmtMnemonic("jal", s"${reg(rd)}, $off")
 
-
       case 0x67 =>
         if (rd == 0 && rs1 == 1 && immI == 0) fmtMnemonic("ret", "")
         else if (rd == 0 && immI == 0) fmtMnemonic("jr", s"${reg(rs1)}")
