@@ -22,9 +22,38 @@ object CpuTopSim extends App {
     .getOrElse(500)
 
   private val abiNames = Array(
-    "zero","ra","sp","gp","tp","t0","t1","t2","s0","s1",
-    "a0","a1","a2","a3","a4","a5","a6","a7","s2","s3",
-    "s4","s5","s6","s7","s8","s9","s10","s11","t3","t4","t5","t6"
+    "zero",
+    "ra",
+    "sp",
+    "gp",
+    "tp",
+    "t0",
+    "t1",
+    "t2",
+    "s0",
+    "s1",
+    "a0",
+    "a1",
+    "a2",
+    "a3",
+    "a4",
+    "a5",
+    "a6",
+    "a7",
+    "s2",
+    "s3",
+    "s4",
+    "s5",
+    "s6",
+    "s7",
+    "s8",
+    "s9",
+    "s10",
+    "s11",
+    "t3",
+    "t4",
+    "t5",
+    "t6"
   )
   private def reg(i: Int): String = abiNames(i & 31)
 
@@ -64,9 +93,9 @@ object CpuTopSim extends App {
         } else if (s0.startsWith(":")) {
           val rec = s0.drop(1)
           if (rec.length >= 10) {
-            val len  = Integer.parseInt(rec.substring(0, 2), 16)
+            val len = Integer.parseInt(rec.substring(0, 2), 16)
             val addr = Integer.parseInt(rec.substring(2, 6), 16)
-            val typ  = Integer.parseInt(rec.substring(6, 8), 16)
+            val typ = Integer.parseInt(rec.substring(6, 8), 16)
 
             if (typ == 0 && rec.length >= 8 + len * 2) {
               val base = if (haveAt) (wordAddr << 2) else 0L
@@ -123,7 +152,8 @@ object CpuTopSim extends App {
       }
     }
 
-    if (mem.isEmpty) throw new RuntimeException(s"Parsed 0 words from firmware: $path")
+    if (mem.isEmpty)
+      throw new RuntimeException(s"Parsed 0 words from firmware: $path")
     mem.toMap
   }
 
@@ -180,12 +210,14 @@ object CpuTopSim extends App {
         if (pc == lastPc) samePcStreak += 1 else samePcStreak = 0
         lastPc = pc
 
-        val regsText = (0 until 32).map { r =>
-          val v =
-            if (r == 0) 0L
-            else toUnsigned32(dut.regFile.regs.getBigInt(r))
-          f"${reg(r)}=0x$v%08x"
-        }.mkString(" ")
+        val regsText = (0 until 32)
+          .map { r =>
+            val v =
+              if (r == 0) 0L
+              else toUnsigned32(dut.regFile.regs.getBigInt(r))
+            f"${reg(r)}=0x$v%08x"
+          }
+          .mkString(" ")
 
         out.println(f"--time:no.$cycle%d pc=0x$pc%08x $regsText")
       }

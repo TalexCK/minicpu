@@ -9,15 +9,46 @@ from typing import List, Optional, Tuple
 import assembler.main as assembler
 
 ABI_NAMES = [
-    "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", "s1",
-    "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "s2", "s3",
-    "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+    "zero",
+    "ra",
+    "sp",
+    "gp",
+    "tp",
+    "t0",
+    "t1",
+    "t2",
+    "s0",
+    "s1",
+    "a0",
+    "a1",
+    "a2",
+    "a3",
+    "a4",
+    "a5",
+    "a6",
+    "a7",
+    "s2",
+    "s3",
+    "s4",
+    "s5",
+    "s6",
+    "s7",
+    "s8",
+    "s9",
+    "s10",
+    "s11",
+    "t3",
+    "t4",
+    "t5",
+    "t6",
 ]
 
 RESET_VECTOR = 0x80000000
 
 
-def run_checked(cmd: List[str], cwd: Optional[Path] = None, env: Optional[dict] = None) -> None:
+def run_checked(
+    cmd: List[str], cwd: Optional[Path] = None, env: Optional[dict] = None
+) -> None:
     p = subprocess.run(cmd, cwd=str(cwd) if cwd else None, env=env)
     if p.returncode != 0:
         raise SystemExit(p.returncode)
@@ -121,7 +152,9 @@ def run_spike_capture(final_elf: Path, timeout_s: float) -> List[str]:
         return out.splitlines()
 
 
-def parse_spike_events(lines: List[str]) -> List[Tuple[int, int, List[Tuple[int, int]]]]:
+def parse_spike_events(
+    lines: List[str],
+) -> List[Tuple[int, int, List[Tuple[int, int]]]]:
     instr_re = re.compile(r"^core\s+\d+:\s+(0x[0-9a-fA-F]+)\s+\((0x[0-9a-fA-F]+)\)\s+")
     commit_gpr_re = re.compile(
         r"^core\s+\d+:\s+\d+\s+(0x[0-9a-fA-F]+)\s+\((0x[0-9a-fA-F]+)\)\s+x\s*(\d+)\s+(0x[0-9a-fA-F]+)"
@@ -180,7 +213,11 @@ def format_dump_line(time_no: int, pc: int, regs: List[int]) -> str:
     return f"--time:no.{time_no} pc=0x{pc & 0xFFFFFFFF:08x} " + " ".join(parts)
 
 
-def write_spike_log(base_dir: Path, events: List[Tuple[int, int, List[Tuple[int, int]]]], max_cycles: int) -> None:
+def write_spike_log(
+    base_dir: Path,
+    events: List[Tuple[int, int, List[Tuple[int, int]]]],
+    max_cycles: int,
+) -> None:
     start_idx = 0
     for i, (pc, _, _) in enumerate(events):
         if pc == RESET_VECTOR:
@@ -206,7 +243,9 @@ def write_spike_log(base_dir: Path, events: List[Tuple[int, int, List[Tuple[int,
 
     log_dir = base_dir / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
-    (log_dir / "spike.log").write_text("\n".join(out_lines) + ("\n" if out_lines else ""), encoding="utf-8")
+    (log_dir / "spike.log").write_text(
+        "\n".join(out_lines) + ("\n" if out_lines else ""), encoding="utf-8"
+    )
 
 
 def parse_dump_line(line: str) -> Optional[Tuple[int, int, List[int]]]:
@@ -236,8 +275,16 @@ def compare_logs(base_dir: Path) -> None:
         print(f"    spike  : {b_path} exists={b_path.exists()}")
         return
 
-    a_lines = [x.strip() for x in a_path.read_text(encoding="utf-8", errors="ignore").splitlines() if x.strip()]
-    b_lines = [x.strip() for x in b_path.read_text(encoding="utf-8", errors="ignore").splitlines() if x.strip()]
+    a_lines = [
+        x.strip()
+        for x in a_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        if x.strip()
+    ]
+    b_lines = [
+        x.strip()
+        for x in b_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        if x.strip()
+    ]
 
     a_parsed = [parse_dump_line(x) for x in a_lines]
     b_parsed = [parse_dump_line(x) for x in b_lines]
@@ -246,7 +293,8 @@ def compare_logs(base_dir: Path) -> None:
         print("[!] Log format parse failed.")
         return
     if any(x is None for x in a_parsed[: min(5, len(a_parsed))]) or any(
-            x is None for x in b_parsed[: min(5, len(b_parsed))]):
+        x is None for x in b_parsed[: min(5, len(b_parsed))]
+    ):
         print("[!] Log format parse failed.")
         return
 
@@ -279,7 +327,7 @@ def compare_logs(base_dir: Path) -> None:
             if (not active_b[r]) and (rb[r] != base_b[r]):
                 active_b[r] = True
 
-        pc_mismatch = (pca != pcb)
+        pc_mismatch = pca != pcb
         first_diff = None
 
         for r in range(1, 32):
@@ -297,11 +345,15 @@ def compare_logs(base_dir: Path) -> None:
                 print(f"    PC diff: spinal=0x{pca:08x} spike=0x{pcb:08x}")
             if first_diff is not None:
                 r = first_diff
-                print(f"    First reg diff: {ABI_NAMES[r]} spinal=0x{ra[r]:08x} spike=0x{rb[r]:08x}")
+                print(
+                    f"    First reg diff: {ABI_NAMES[r]} spinal=0x{ra[r]:08x} spike=0x{rb[r]:08x}"
+                )
             err += 1
 
     if len(a_parsed) != len(b_parsed):
-        print(f"[!] Warning: Log lengths differ. Spinal: {len(a_parsed)}, Spike: {len(b_parsed)}")
+        print(
+            f"[!] Warning: Log lengths differ. Spinal: {len(a_parsed)}, Spike: {len(b_parsed)}"
+        )
 
     used = [ABI_NAMES[r] for r in range(1, 32) if compared_regs_ever[r]]
     if used:

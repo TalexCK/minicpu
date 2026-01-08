@@ -72,16 +72,24 @@ class CpuTop(config: RiscvConfig) extends Component {
   }
 
   val loadHalf = Bits(16 bits)
-  loadHalf := Mux(addrLow(1), memWordBits(31 downto 16), memWordBits(15 downto 0))
+  loadHalf := Mux(
+    addrLow(1),
+    memWordBits(31 downto 16),
+    memWordBits(15 downto 0)
+  )
 
   val loadData = UInt(config.xlen bits)
   loadData := dMem.io.bus.readData
   switch(funct3) {
-    is(U"3'b000") { loadData := loadByte.asSInt.resize(config.xlen).asUInt } // LB
-    is(U"3'b001") { loadData := loadHalf.asSInt.resize(config.xlen).asUInt } // LH
-    is(U"3'b010") { loadData := dMem.io.bus.readData }                       // LW
-    is(U"3'b100") { loadData := loadByte.asUInt.resize(config.xlen) }        // LBU
-    is(U"3'b101") { loadData := loadHalf.asUInt.resize(config.xlen) }        // LHU
+    is(U"3'b000") {
+      loadData := loadByte.asSInt.resize(config.xlen).asUInt
+    } // LB
+    is(U"3'b001") {
+      loadData := loadHalf.asSInt.resize(config.xlen).asUInt
+    } // LH
+    is(U"3'b010") { loadData := dMem.io.bus.readData } // LW
+    is(U"3'b100") { loadData := loadByte.asUInt.resize(config.xlen) } // LBU
+    is(U"3'b101") { loadData := loadHalf.asUInt.resize(config.xlen) } // LHU
   }
 
   // Write Back
@@ -129,10 +137,10 @@ class CpuTop(config: RiscvConfig) extends Component {
         branchTaken := !alu.io.bus.result.asBits.msb
       }
       is(U"3'b110") { // BLTU
-        branchTaken := regFile.io.rs1.data < regFile.io.rs2.data
+        branchTaken := alu.io.bus.result.asBits.msb
       }
       is(U"3'b111") { // BGEU
-        branchTaken := regFile.io.rs1.data >= regFile.io.rs2.data
+        branchTaken := !alu.io.bus.result.asBits.msb
       }
     }
   }
