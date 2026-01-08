@@ -9,9 +9,9 @@ from typing import List, Optional, Tuple
 import assembler.main as assembler
 
 ABI_NAMES = [
-    "zero","ra","sp","gp","tp","t0","t1","t2","s0","s1",
-    "a0","a1","a2","a3","a4","a5","a6","a7","s2","s3",
-    "s4","s5","s6","s7","s8","s9","s10","s11","t3","t4","t5","t6"
+    "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2", "s0", "s1",
+    "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "s2", "s3",
+    "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 ]
 
 RESET_VECTOR = 0x80000000
@@ -245,7 +245,8 @@ def compare_logs(base_dir: Path) -> None:
     if not a_parsed or not b_parsed:
         print("[!] Log format parse failed.")
         return
-    if any(x is None for x in a_parsed[: min(5, len(a_parsed))]) or any(x is None for x in b_parsed[: min(5, len(b_parsed))]):
+    if any(x is None for x in a_parsed[: min(5, len(a_parsed))]) or any(
+            x is None for x in b_parsed[: min(5, len(b_parsed))]):
         print("[!] Log format parse failed.")
         return
 
