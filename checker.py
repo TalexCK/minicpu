@@ -286,6 +286,8 @@ def compare_logs(base_dir: Path) -> None:
         if x.strip()
     ]
 
+    print("[-] MiniCpu Final Regs: " + a_lines[-1])
+    print("[-] Spike Final Regs: " + b_lines[-1])
     a_parsed = [parse_dump_line(x) for x in a_lines]
     b_parsed = [parse_dump_line(x) for x in b_lines]
 

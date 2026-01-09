@@ -211,7 +211,7 @@ object CpuTopSim extends App {
           .map { r =>
             val v =
               if (r == 0) 0L
-              else toUnsigned32(dut.regFile.regs.getBigInt(r))
+              else toUnsigned32(dut.regFile.regs(r).toBigInt)
             f"${reg(r)}=0x$v%08x"
           }
           .mkString(" ")
