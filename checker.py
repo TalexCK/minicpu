@@ -47,7 +47,7 @@ RESET_VECTOR = 0x80000000
 
 
 def run_checked(
-    cmd: List[str], cwd: Optional[Path] = None, env: Optional[dict] = None
+        cmd: List[str], cwd: Optional[Path] = None, env: Optional[dict] = None
 ) -> None:
     p = subprocess.run(cmd, cwd=str(cwd) if cwd else None, env=env)
     if p.returncode != 0:
@@ -59,7 +59,7 @@ def text_bits_to_binary(input_path: Path, output_path: Path) -> None:
     bits = "".join(c for c in content if c in "01")
     with output_path.open("wb") as f_out:
         for i in range(0, len(bits), 32):
-            chunk = bits[i : i + 32]
+            chunk = bits[i: i + 32]
             if len(chunk) == 32:
                 val = int(chunk, 2) & 0xFFFFFFFF
                 f_out.write(struct.pack("<I", val))
@@ -153,7 +153,7 @@ def run_spike_capture(final_elf: Path, timeout_s: float) -> List[str]:
 
 
 def parse_spike_events(
-    lines: List[str],
+        lines: List[str],
 ) -> List[Tuple[int, int, List[Tuple[int, int]]]]:
     instr_re = re.compile(r"^core\s+\d+:\s+(0x[0-9a-fA-F]+)\s+\((0x[0-9a-fA-F]+)\)\s+")
     commit_gpr_re = re.compile(
@@ -214,9 +214,9 @@ def format_dump_line(time_no: int, pc: int, regs: List[int]) -> str:
 
 
 def write_spike_log(
-    base_dir: Path,
-    events: List[Tuple[int, int, List[Tuple[int, int]]]],
-    max_cycles: int,
+        base_dir: Path,
+        events: List[Tuple[int, int, List[Tuple[int, int]]]],
+        max_cycles: int,
 ) -> None:
     start_idx = 0
     for i, (pc, _, _) in enumerate(events):
@@ -226,9 +226,9 @@ def write_spike_log(
     events = events[start_idx:]
 
     regs = [0] * 32
-    out_lines: List[str] = []
+    out_lines: List[str] = [format_dump_line(0, RESET_VECTOR, regs)]
 
-    n = min(max_cycles, len(events))
+    n = min(max_cycles - 1, len(events))
     for i in range(n):
         pc, inst, writes = events[i]
         for rd, val in writes:
@@ -293,7 +293,7 @@ def compare_logs(base_dir: Path) -> None:
         print("[!] Log format parse failed.")
         return
     if any(x is None for x in a_parsed[: min(5, len(a_parsed))]) or any(
-        x is None for x in b_parsed[: min(5, len(b_parsed))]
+            x is None for x in b_parsed[: min(5, len(b_parsed))]
     ):
         print("[!] Log format parse failed.")
         return
