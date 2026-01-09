@@ -226,9 +226,9 @@ def write_spike_log(
     events = events[start_idx:]
 
     regs = [0] * 32
-    out_lines: List[str] = []
+    out_lines: List[str] = [format_dump_line(0, RESET_VECTOR, regs)]
 
-    n = min(max_cycles, len(events))
+    n = min(max_cycles - 1, len(events))
     for i in range(n):
         pc, inst, writes = events[i]
         for rd, val in writes:

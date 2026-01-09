@@ -203,9 +203,6 @@ object CpuTopSim extends App {
       var lastPc: Long = -1L
 
       while (cycle < maxCycles && samePcStreak < 2000) {
-        dut.clockDomain.waitRisingEdge()
-        cycle += 1
-
         val pc = toUnsigned32(dut.pc.io.bus.pc.toBigInt)
         if (pc == lastPc) samePcStreak += 1 else samePcStreak = 0
         lastPc = pc
@@ -220,6 +217,9 @@ object CpuTopSim extends App {
           .mkString(" ")
 
         out.println(f"--time:no.$cycle%d pc=0x$pc%08x $regsText")
+
+        dut.clockDomain.waitRisingEdge()
+        cycle += 1
       }
 
       out.flush()
