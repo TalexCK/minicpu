@@ -13,7 +13,7 @@ class RegFile(config: RiscvConfig) extends Component {
     val rd = slave(RegFileWrite(config))
   }
 
-  val regs = Vec(Reg(config.wordType) init(0), 32)
+  val regs = Vec.fill(32)(RegInit(U(0, config.xlen bits)))
 
   io.rs1.data := Mux(
     io.rs1.address === 0,
