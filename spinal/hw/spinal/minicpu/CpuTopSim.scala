@@ -12,12 +12,12 @@ object CpuTopSim extends App {
   private val config = RiscvConfig()
 
   private val firmwarePath =
-    sys.props.getOrElse("firmware", "../assembler/firmware.hex")
+    sys.env.getOrElse("firmware", "../assembler/firmware.hex")
   private val commitLogPath =
-    sys.props.getOrElse("commitLog", "../logs/minicpu.log")
+    sys.env.getOrElse("commitLog", "../logs/minicpu.log")
 
-  private val maxCycles = sys.props
-    .get("maxInstructions")
+  private val maxCycles = sys.env
+    .get("MAX_INSTRUCTIONS")
     .flatMap(s => scala.util.Try(s.toInt).toOption)
     .getOrElse(500)
 
@@ -211,7 +211,7 @@ object CpuTopSim extends App {
           .map { r =>
             val v =
               if (r == 0) 0L
-              else toUnsigned32(dut.regFile.regs.getBigInt(r))
+              else toUnsigned32(dut.regFile.regs(r).toBigInt)
             f"${reg(r)}=0x$v%08x"
           }
           .mkString(" ")

@@ -75,3 +75,4 @@ This script converts the hex file to binary, runs it in Spike, and compares the 
 **args:**
 
 - `-d`: Generate hex from esisting asm file instead of compiled Rust code.
+- `--max <number>`: Maximum number of cycles to execute. 

@@ -13,22 +13,22 @@ class RegFile(config: RiscvConfig) extends Component {
     val rd = slave(RegFileWrite(config))
   }
 
-  val regs = Mem(config.wordType, 32)
+  val regs = Vec.fill(32)(RegInit(U(0, config.xlen bits)))
 
   io.rs1.data := Mux(
     io.rs1.address === 0,
     U(0, config.xlen bits),
-    regs.readAsync(io.rs1.address)
+    regs(io.rs1.address)
   )
 
   io.rs2.data := Mux(
     io.rs2.address === 0,
     U(0, config.xlen bits),
-    regs.readAsync(io.rs2.address)
+    regs(io.rs2.address)
   )
 
   when(io.rd.we && io.rd.address =/= 0) {
-    regs.write(io.rd.address, io.rd.data)
+    regs(io.rd.address) := io.rd.data
   }
 
 }
