@@ -3,6 +3,7 @@ import re
 import struct
 import subprocess
 import sys
+import argparse
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -122,12 +123,11 @@ def run_spinal_sim(base_dir: Path, max_cycles: int) -> None:
     sim_env["PATH"] = f"/usr/bin:/bin:/usr/sbin:/sbin:{current_path}"
 
     (base_dir / "logs").mkdir(parents=True, exist_ok=True)
-
+    sim_env["FIRMWARE"] = "../assembler/firmware.hex"
+    sim_env["COMMIT_LOG"] = "../logs/minicpu.log"
+    sim_env["MAX_INSTRUCTIONS"] = str(max_cycles)
     cmd = [
         "sbt",
-        "-Dfirmware=../assembler/firmware.hex",
-        "-DcommitLog=../logs/minicpu.log",
-        f"-DmaxInstructions={max_cycles}",
         "runMain minicpu.CpuTopSim",
     ]
     run_checked(cmd, cwd=spinal_path, env=sim_env)
@@ -385,8 +385,11 @@ def main() -> None:
     else:
         assembler.generate_hex()
 
-    max_cycles = int(os.getenv("MAX_CYCLES", "500"))
-    spike_timeout = float(os.getenv("SPIKE_TIMEOUT", "0.5"))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--max", type=int, default=500)
+    args = parser.parse_args()
+    max_cycles = args.max
+    spike_timeout = 0.5
 
     run_spinal_sim(base_dir, max_cycles)
 
