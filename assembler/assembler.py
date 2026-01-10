@@ -281,7 +281,7 @@ def encode_file(path: str):
     instline = read_file_as_list(path)
     for i in range(len(instline)):
         instline[i] = instline[i].split("#", 1)[0].split("//", 1)[0].strip()
-        if not instline[i] or not instline[i].strip():
+        if not instline[i]:
             instline[i] = ""
             continue
         if ":" in instline[i]:
@@ -289,18 +289,18 @@ def encode_file(path: str):
             rest = instline[i].split(":", 1)[1].strip()
             list_label_name.append(label)
             list_label_pc.append(pc)
-            if rest and rest.strip():
+            if rest:
                 instline[i] = remove_reg_alias(rest)
                 pc += 0x00000004
             else:
                 instline[i] = label + ":"
-        elif instline[i] and instline[i].strip():
+        else:
             instline[i] = remove_reg_alias(instline[i])
             pc += 0x00000004
     pc = 0x00000000
     assemble_code = []
     for i in instline:
-        if ":" not in i and i and i.strip():
+        if ":" not in i and i:
             assemble_code.append(encode_code(i))
             pc += 0x00000004
     write_file("./assembler/firmware.hex", assemble_code)
