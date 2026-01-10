@@ -12,9 +12,9 @@ object CpuTopSim extends App {
   private val config = RiscvConfig()
 
   private val firmwarePath =
-    sys.env.getOrElse("firmware", "../assembler/firmware.hex")
+    sys.env.getOrElse("FIRMWARE", "../assembler/firmware.hex")
   private val commitLogPath =
-    sys.env.getOrElse("commitLog", "../logs/minicpu.log")
+    sys.env.getOrElse("COMMIT_LOG", "../logs/minicpu.log")
 
   private val maxCycles = sys.env
     .get("MAX_INSTRUCTIONS")
