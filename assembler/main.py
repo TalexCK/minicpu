@@ -20,7 +20,7 @@ def build_and_dump() -> None:
     )
 
     dump_cmd = (
-        f"rust-objdump -d {elf_path} -M numeric,no-aliases --no-show-raw-insn | "
+        f"rust-objdump -d {elf_path} -M no-aliases --no-show-raw-insn | "
         "grep -vE 'file format|Disassembly| <.*>:' | "
         "sed -E 's/^[[:space:]]*[0-9a-f]+:[[:space:]]*//' | "
         "sed -E 's/<.*>//' | "
@@ -36,12 +36,12 @@ def build_and_dump() -> None:
     print(f"--- ASM generated at {output_asm_path} ---")
 
 
-def generate_hex():
+def generate_hex() -> None:
     build_and_dump()
     encode_file(os.path.join(script_dir, "firmware.asm"))
 
 
-def generate_hex_directly():
+def generate_hex_directly() -> None:
     encode_file(os.path.join(script_dir, "firmware.asm"))
 
 

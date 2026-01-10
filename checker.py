@@ -2,7 +2,6 @@ import os
 import re
 import struct
 import subprocess
-import sys
 import argparse
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -380,16 +379,17 @@ def cleanup(base_dir: Path) -> None:
 def main() -> None:
     base_dir = Path.cwd()
 
-    if "-d" in sys.argv:
-        assembler.generate_hex_directly()
-    else:
-        assembler.generate_hex()
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--max", type=int, default=500)
+    parser.add_argument("-d", action="store_true")
     args = parser.parse_args()
     max_cycles = args.max
     spike_timeout = 0.5
+
+    if args.d:
+        assembler.generate_hex_directly()
+    else:
+        assembler.generate_hex()
 
     run_spinal_sim(base_dir, max_cycles)
 
