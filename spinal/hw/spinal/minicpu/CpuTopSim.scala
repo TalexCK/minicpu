@@ -70,7 +70,6 @@ object CpuTopSim extends App {
     val lines = Files.readAllLines(p).asScala.toVector
     val mem = mutable.LinkedHashMap.empty[Long, Int]
 
-    var haveAt = false
     var wordAddr: Long = 0x80000000L
 
     def parseWordToken(tok: String): Option[Int] = {
@@ -85,68 +84,23 @@ object CpuTopSim extends App {
 
     for (raw <- lines) {
       val s0 = raw.trim
-      if (s0.nonEmpty && !s0.startsWith("#") && !s0.startsWith("//")) {
-        if (s0.startsWith("@")) {
-          haveAt = true
-          val a = java.lang.Long.parseUnsignedLong(s0.drop(1).trim, 16)
-          wordAddr = if (a >= 0x80000000L) (a >>> 2) else a
-        } else if (s0.startsWith(":")) {
-          val rec = s0.drop(1)
-          if (rec.length >= 10) {
-            val len = Integer.parseInt(rec.substring(0, 2), 16)
-            val addr = Integer.parseInt(rec.substring(2, 6), 16)
-            val typ = Integer.parseInt(rec.substring(6, 8), 16)
-
-            if (typ == 0 && rec.length >= 8 + len * 2) {
-              val base = if (haveAt) (wordAddr << 2) else 0L
-              val byteAddr0 = base + addr.toLong
-              val bytes = (0 until len).map { i =>
-                Integer.parseInt(rec.substring(8 + i * 2, 10 + i * 2), 16)
-              }
-
-              var i = 0
-              while (i + 3 < bytes.length) {
-                val b0 = bytes(i)
-                val b1 = bytes(i + 1)
-                val b2 = bytes(i + 2)
-                val b3 = bytes(i + 3)
-                val w =
-                  (b0 & 0xff) |
-                    ((b1 & 0xff) << 8) |
-                    ((b2 & 0xff) << 16) |
-                    ((b3 & 0xff) << 24)
-                val wa = ((byteAddr0 + i.toLong) >>> 2)
-                mem.update(wa, w)
-                i += 4
-              }
-            } else if (typ == 4 && rec.length >= 12) {
-              val hi = Integer.parseInt(rec.substring(8, 12), 16)
-              wordAddr = (hi.toLong << 16) >>> 2
-              haveAt = true
-            }
-          }
-        } else {
-          val tokens = s0.split("\\s+")
-          var any = false
-
-          tokens.foreach { tok =>
-            parseWordToken(tok).foreach { w =>
-              any = true
-              mem.update(wordAddr, w)
-              wordAddr += 1
-            }
-          }
-
-          if (!any && s0.matches("[01]+") && s0.length % 32 == 0) {
-            val n = s0.length / 32
-            var i = 0
-            while (i < n) {
-              val chunk = s0.substring(i * 32, (i + 1) * 32)
-              val w = java.lang.Long.parseUnsignedLong(chunk, 2).toInt
-              mem.update(wordAddr, w)
-              wordAddr += 1
-              i += 1
-            }
+      val tokens = s0.split("\\s+")
+      var any = false
+      tokens.foreach { tok =>
+        parseWordToken(tok).foreach { w =>
+          any = true
+          mem.update(wordAddr, w)
+          wordAddr += 1
+        }
+        if (!any && s0.matches("[01]+") && s0.length % 32 == 0) {
+          val n = s0.length / 32
+          var i = 0
+          while (i < n) {
+            val chunk = s0.substring(i * 32, (i + 1) * 32)
+            val w = java.lang.Long.parseUnsignedLong(chunk, 2).toInt
+            mem.update(wordAddr, w)
+            wordAddr += 1
+            i += 1
           }
         }
       }

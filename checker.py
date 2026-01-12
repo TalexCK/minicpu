@@ -78,12 +78,9 @@ def build_elf_from_hex(base_dir: Path) -> Path:
 
     text_bits_to_binary(input_hex, bin_file)
 
-    objcopy = os.getenv("OBJCOPY", "rust-objcopy")
-    ld = os.getenv("LD", "rust-lld")
-
     run_checked(
         [
-            objcopy,
+            "rust-objcopy",
             "-I",
             "binary",
             "-O",
@@ -97,7 +94,7 @@ def build_elf_from_hex(base_dir: Path) -> Path:
 
     run_checked(
         [
-            ld,
+            "rust-lld",
             "-flavor",
             "gnu",
             "-m",
@@ -133,8 +130,8 @@ def run_spinal_sim(base_dir: Path, max_cycles: int) -> None:
 
 
 def run_spike_capture(final_elf: Path, timeout_s: float) -> List[str]:
-    spike = os.getenv("SPIKE", "spike")
-    isa = os.getenv("SPIKE_ISA", "rv32imac")
+    spike = "spike"
+    isa = "rv32imac"
     cmd = [spike, "-l", "--log-commits", f"--isa={isa}", str(final_elf)]
     try:
         p = subprocess.run(
