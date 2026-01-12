@@ -131,16 +131,16 @@ class CpuTop(config: RiscvConfig) extends Component {
         branchTaken := !alu.io.bus.zero
       }
       is(U"3'b100") { // BLT
-        branchTaken := alu.io.bus.result.asBits.msb
+        branchTaken := !alu.io.bus.zero
       }
       is(U"3'b101") { // BGE
-        branchTaken := !alu.io.bus.result.asBits.msb
+        branchTaken := alu.io.bus.zero
       }
       is(U"3'b110") { // BLTU
-        branchTaken := alu.io.bus.result.asBits.msb
+        branchTaken := !alu.io.bus.zero
       }
       is(U"3'b111") { // BGEU
-        branchTaken := !alu.io.bus.result.asBits.msb
+        branchTaken := alu.io.bus.zero
       }
     }
   }

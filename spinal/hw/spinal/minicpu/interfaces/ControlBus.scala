@@ -5,7 +5,7 @@ import spinal.lib.IMasterSlave
 import spinal.core._
 
 object AluCtrlOp extends SpinalEnum {
-  val ADD_TYPE, SUB_TYPE, R_TYPE, I_TYPE, COPY_SRC2 = newElement()
+  val ADD_TYPE, R_TYPE, I_TYPE, COPY_SRC2, B_TYPE = newElement()
 }
 
 case class AluControlBus(config: RiscvConfig) extends Bundle with IMasterSlave {

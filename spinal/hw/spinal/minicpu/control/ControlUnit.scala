@@ -54,7 +54,7 @@ class ControlUnit(config: RiscvConfig) extends Component {
       // Branch
       io.bus.branch := True
       io.bus.immType := ImmType.B
-      io.bus.aluCtrlOp := AluCtrlOp.SUB_TYPE
+      io.bus.aluCtrlOp := AluCtrlOp.B_TYPE
     }
     is(U"7'b1101111") {
       // JAL
