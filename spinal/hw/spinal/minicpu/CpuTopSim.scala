@@ -70,7 +70,6 @@ object CpuTopSim extends App {
     val lines = Files.readAllLines(p).asScala.toVector
     val mem = mutable.LinkedHashMap.empty[Long, Int]
 
-    var haveAt = false
     var wordAddr: Long = 0x80000000L
 
     def parseWordToken(tok: String): Option[Int] = {
@@ -85,25 +84,23 @@ object CpuTopSim extends App {
 
     for (raw <- lines) {
       val s0 = raw.trim
-      if (s0.nonEmpty && !s0.startsWith("#") && !s0.startsWith("//")) {
-        val tokens = s0.split("\\s+")
-        var any = false
-        tokens.foreach { tok =>
-          parseWordToken(tok).foreach { w =>
-            any = true
+      val tokens = s0.split("\\s+")
+      var any = false
+      tokens.foreach { tok =>
+        parseWordToken(tok).foreach { w =>
+          any = true
+          mem.update(wordAddr, w)
+          wordAddr += 1
+        }
+        if (!any && s0.matches("[01]+") && s0.length % 32 == 0) {
+          val n = s0.length / 32
+          var i = 0
+          while (i < n) {
+            val chunk = s0.substring(i * 32, (i + 1) * 32)
+            val w = java.lang.Long.parseUnsignedLong(chunk, 2).toInt
             mem.update(wordAddr, w)
             wordAddr += 1
-          }
-          if (!any && s0.matches("[01]+") && s0.length % 32 == 0) {
-            val n = s0.length / 32
-            var i = 0
-            while (i < n) {
-              val chunk = s0.substring(i * 32, (i + 1) * 32)
-              val w = java.lang.Long.parseUnsignedLong(chunk, 2).toInt
-              mem.update(wordAddr, w)
-              wordAddr += 1
-              i += 1
-            }
+            i += 1
           }
         }
       }
