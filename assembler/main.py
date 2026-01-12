@@ -69,8 +69,7 @@ def build_and_dump() -> None:
             if not instruction:
                 continue
 
-            parts = instruction.split()
-            mnemonic = parts[0] if parts else ""
+            mnemonic = instruction.split()[0]
 
             if mnemonic in branch_mnemonics:
                 current_pc = int(pc_str, 16)
@@ -81,10 +80,8 @@ def build_and_dump() -> None:
                     target_addr = int(target_hex, 16)
                     diff = target_addr - current_pc
 
-                    if -1048576 < diff < 1048576:
-                        sign = "+" if diff >= 0 else ""
-                        rel_str = f"{sign}{diff}"
-                        instruction = instruction.replace(target_hex, rel_str)
+                    rel_str = f"{diff:+}"
+                    instruction = instruction.replace(target_hex, rel_str)
 
             processed_lines.append(instruction)
 

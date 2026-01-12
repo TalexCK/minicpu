@@ -234,7 +234,6 @@ def write_spike_log(
         if i + 1 < len(events):
             next_pc = events[i + 1][0] & 0xFFFFFFFF
         else:
-            # Try to decode JAL to predict next PC correctly if log is truncated
             opcode = inst & 0x7F
             if opcode == 0x6F:  # JAL
                 imm20 = (inst >> 31) & 1
@@ -244,7 +243,6 @@ def write_spike_log(
                 offset = (
                     (imm20 << 20) | (imm19_12 << 12) | (imm11 << 11) | (imm10_1 << 1)
                 )
-                # Sign extend 21-bit
                 if offset & 0x100000:
                     offset -= 0x200000
                 next_pc = (pc + offset) & 0xFFFFFFFF
