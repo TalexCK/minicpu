@@ -234,7 +234,22 @@ def write_spike_log(
         if i + 1 < len(events):
             next_pc = events[i + 1][0] & 0xFFFFFFFF
         else:
-            next_pc = pc & 0xFFFFFFFF
+            # Try to decode JAL to predict next PC correctly if log is truncated
+            opcode = inst & 0x7F
+            if opcode == 0x6F:  # JAL
+                imm20 = (inst >> 31) & 1
+                imm10_1 = (inst >> 21) & 0x3FF
+                imm11 = (inst >> 20) & 1
+                imm19_12 = (inst >> 12) & 0xFF
+                offset = (
+                    (imm20 << 20) | (imm19_12 << 12) | (imm11 << 11) | (imm10_1 << 1)
+                )
+                # Sign extend 21-bit
+                if offset & 0x100000:
+                    offset -= 0x200000
+                next_pc = (pc + offset) & 0xFFFFFFFF
+            else:
+                next_pc = (pc + 4) & 0xFFFFFFFF
         out_lines.append(format_dump_line(i + 1, next_pc, regs))
 
     log_dir = base_dir / "logs"

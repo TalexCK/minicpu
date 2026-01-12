@@ -99,10 +99,7 @@ class IType(AssemblerType):
             rd = int(args[0][1:], 0)
             rs1_and_imm = list(args[1].split("("))
             rs1 = int(rs1_and_imm[1][1:-1], 0)
-            try:
-                imm = int(rs1_and_imm[0], 0)
-            except ValueError:
-                imm = list_label_pc[list_label_name.index(rs1_and_imm[0])]
+            imm = int(rs1_and_imm[0], 0)
             return (
                 to_bin(imm, 12)
                 + to_bin(rs1, 5)
@@ -116,7 +113,10 @@ class IType(AssemblerType):
             rd = int(args[0][1:], 0)
             rs1_and_imm = list(args[1].split("("))
             rs1 = int(rs1_and_imm[1][1:-1], 0)
-            imm = int(rs1_and_imm[0], 0)
+            try:
+                imm = int(rs1_and_imm[0], 0)
+            except ValueError:
+                imm = list_label_pc[list_label_name.index(rs1_and_imm[0])]
             return (
                 to_bin(imm, 12)
                 + to_bin(rs1, 5)
@@ -182,7 +182,7 @@ class BType(AssemblerType):
         rs1 = int(args[0][1:], 0)
         rs2 = int(args[1][1:], 0)
         try:
-            imm = int(args[2], 0) - pc
+            imm = int(args[2], 0)
         except ValueError:
             imm = list_label_pc[list_label_name.index(args[2])] - pc
 
@@ -204,10 +204,7 @@ class UType(AssemblerType):
     def encode(self, args: list):
         opcode = self.opcode
         rd = int(args[0][1:], 0)
-        try:
-            imm = int(args[1], 0)
-        except ValueError:
-            imm = list_label_pc[list_label_name.index(args[1])]
+        imm = int(args[1], 0)
         return to_bin(imm, 20) + to_bin(rd, 5) + to_bin(opcode, 7)
 
 
@@ -218,7 +215,7 @@ class JType(AssemblerType):
         opcode = self.opcode
         rd = int(args[0][1:], 0)
         try:
-            imm = int(args[1], 0) - pc
+            imm = int(args[1], 0)
         except ValueError:
             imm = list_label_pc[list_label_name.index(args[1])] - pc
 
