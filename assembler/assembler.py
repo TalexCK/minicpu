@@ -13,15 +13,44 @@ list_label_name = []
 list_label_pc = []
 
 reg_alias = {
-    "zero": 0, "ra": 1,  "sp": 2,  "gp": 3,  "tp": 4,
-    "t0": 5,   "t1": 6,  "t2": 7,
-    "s0": 8,   "fp": 8,  "s1": 9,
-    "a0": 10,  "a1": 11, "a2": 12, "a3": 13, "a4": 14, "a5": 15, "a6": 16, "a7": 17,
-    "s2": 18,  "s3": 19, "s4": 20, "s5": 21, "s6": 22, "s7": 23, "s8": 24, "s9": 25, "s10": 26, "s11": 27,
-    "t3": 28,  "t4": 29, "t5": 30, "t6": 31,
+    "zero": 0,
+    "ra": 1,
+    "sp": 2,
+    "gp": 3,
+    "tp": 4,
+    "t0": 5,
+    "t1": 6,
+    "t2": 7,
+    "s0": 8,
+    "fp": 8,
+    "s1": 9,
+    "a0": 10,
+    "a1": 11,
+    "a2": 12,
+    "a3": 13,
+    "a4": 14,
+    "a5": 15,
+    "a6": 16,
+    "a7": 17,
+    "s2": 18,
+    "s3": 19,
+    "s4": 20,
+    "s5": 21,
+    "s6": 22,
+    "s7": 23,
+    "s8": 24,
+    "s9": 25,
+    "s10": 26,
+    "s11": 27,
+    "t3": 28,
+    "t4": 29,
+    "t5": 30,
+    "t6": 31,
 }
 
-alias = re.compile(r"\b(" + "|".join(map(re.escape, reg_alias.keys())) + r")\b", re.IGNORECASE)
+alias = re.compile(
+    r"\b(" + "|".join(map(re.escape, reg_alias.keys())) + r")\b", re.IGNORECASE
+)
 
 
 # Types
@@ -39,12 +68,12 @@ class RType(AssemblerType):
         rs2 = int(args[2][1:], 0)
 
         return (
-                to_bin(funct7, 7)
-                + to_bin(rs2, 5)
-                + to_bin(rs1, 5)
-                + to_bin(funct3, 3)
-                + to_bin(rd, 5)
-                + to_bin(opcode, 7)
+            to_bin(funct7, 7)
+            + to_bin(rs2, 5)
+            + to_bin(rs1, 5)
+            + to_bin(funct3, 3)
+            + to_bin(rd, 5)
+            + to_bin(opcode, 7)
         )
 
 
@@ -75,11 +104,11 @@ class IType(AssemblerType):
             except ValueError:
                 imm = list_label_pc[list_label_name.index(rs1_and_imm[0])]
             return (
-                    to_bin(imm, 12)
-                    + to_bin(rs1, 5)
-                    + to_bin(funct3, 3)
-                    + to_bin(rd, 5)
-                    + to_bin(opcode, 7)
+                to_bin(imm, 12)
+                + to_bin(rs1, 5)
+                + to_bin(funct3, 3)
+                + to_bin(rd, 5)
+                + to_bin(opcode, 7)
             )
         elif opcode == 0x67:
             opcode = self.opcode
@@ -89,11 +118,11 @@ class IType(AssemblerType):
             rs1 = int(rs1_and_imm[1][1:-1], 0)
             imm = int(rs1_and_imm[0], 0)
             return (
-                    to_bin(imm, 12)
-                    + to_bin(rs1, 5)
-                    + to_bin(funct3, 3)
-                    + to_bin(rd, 5)
-                    + to_bin(opcode, 7)
+                to_bin(imm, 12)
+                + to_bin(rs1, 5)
+                + to_bin(funct3, 3)
+                + to_bin(rd, 5)
+                + to_bin(opcode, 7)
             )
         else:
             funct3 = self.funct3
@@ -104,20 +133,20 @@ class IType(AssemblerType):
             if if_funct7:
                 funct7 = self.funct7
                 return (
-                        to_bin(funct7, 7)
-                        + to_bin(imm, 5)
-                        + to_bin(rs1, 5)
-                        + to_bin(funct3, 3)
-                        + to_bin(rd, 5)
-                        + to_bin(opcode, 7)
+                    to_bin(funct7, 7)
+                    + to_bin(imm, 5)
+                    + to_bin(rs1, 5)
+                    + to_bin(funct3, 3)
+                    + to_bin(rd, 5)
+                    + to_bin(opcode, 7)
                 )
             else:
                 return (
-                        to_bin(imm, 12)
-                        + to_bin(rs1, 5)
-                        + to_bin(funct3, 3)
-                        + to_bin(rd, 5)
-                        + to_bin(opcode, 7)
+                    to_bin(imm, 12)
+                    + to_bin(rs1, 5)
+                    + to_bin(funct3, 3)
+                    + to_bin(rd, 5)
+                    + to_bin(opcode, 7)
                 )
 
 
@@ -134,12 +163,12 @@ class SType(AssemblerType):
         imm = int(rs1_and_imm[0], 0)
 
         return (
-                to_bin(imm, 7, 5)
-                + to_bin(rs2, 5)
-                + to_bin(rs1, 5)
-                + to_bin(funct3, 3)
-                + to_bin(imm, 5)
-                + to_bin(opcode, 7)
+            to_bin(imm, 7, 5)
+            + to_bin(rs2, 5)
+            + to_bin(rs1, 5)
+            + to_bin(funct3, 3)
+            + to_bin(imm, 5)
+            + to_bin(opcode, 7)
         )
 
 
@@ -158,14 +187,14 @@ class BType(AssemblerType):
             imm = list_label_pc[list_label_name.index(args[2])] - pc
 
         return (
-                to_bin(imm, 1, 12)
-                + to_bin(imm, 6, 5)
-                + to_bin(rs2, 5)
-                + to_bin(rs1, 5)
-                + to_bin(funct3, 3)
-                + to_bin(imm, 4, 1)
-                + to_bin(imm, 1, 11)
-                + to_bin(opcode, 7)
+            to_bin(imm, 1, 12)
+            + to_bin(imm, 6, 5)
+            + to_bin(rs2, 5)
+            + to_bin(rs1, 5)
+            + to_bin(funct3, 3)
+            + to_bin(imm, 4, 1)
+            + to_bin(imm, 1, 11)
+            + to_bin(opcode, 7)
         )
 
 
@@ -179,8 +208,6 @@ class UType(AssemblerType):
             imm = int(args[1], 0)
         except ValueError:
             imm = list_label_pc[list_label_name.index(args[1])]
-        if opcode == 0x17:
-            imm = imm - pc
         return to_bin(imm, 20) + to_bin(rd, 5) + to_bin(opcode, 7)
 
 
@@ -196,12 +223,12 @@ class JType(AssemblerType):
             imm = list_label_pc[list_label_name.index(args[1])] - pc
 
         return (
-                to_bin(imm, 1, 20)
-                + to_bin(imm, 10, 1)
-                + to_bin(imm, 1, 11)
-                + to_bin(imm, 8, 12)
-                + to_bin(rd, 5)
-                + to_bin(opcode, 7)
+            to_bin(imm, 1, 20)
+            + to_bin(imm, 10, 1)
+            + to_bin(imm, 1, 11)
+            + to_bin(imm, 8, 12)
+            + to_bin(rd, 5)
+            + to_bin(opcode, 7)
         )
 
 
@@ -251,14 +278,15 @@ InstMap = {
 # transform number to binary string
 def to_bin(num: int, length: int, start: int = 0):
     if num < 0:
-        return (bin(num & 0xFFFFFFFF)[2:].zfill(32))[32 - start - length: 32 - start]
-    return bin(num)[2:].zfill(32)[32 - start - length: 32 - start]
+        return (bin(num & 0xFFFFFFFF)[2:].zfill(32))[32 - start - length : 32 - start]
+    return bin(num)[2:].zfill(32)[32 - start - length : 32 - start]
 
 
 def remove_reg_alias(line: str) -> str:
     def repl(m: re.Match) -> str:
         name = m.group(1).lower()
         return f"x{reg_alias[name]}"
+
     return alias.sub(repl, line)
 
 

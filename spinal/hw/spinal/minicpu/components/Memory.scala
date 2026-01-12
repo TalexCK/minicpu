@@ -20,7 +20,8 @@ class Memory(config: RiscvConfig) extends Component {
   mem.write(
     enable = io.bus.enable && io.bus.write,
     address = wordAddress,
-    data = io.bus.writeData
+    data = io.bus.writeData,
+    mask = io.bus.mask
   )
 
   io.bus.readData := mem.readAsync(wordAddress)

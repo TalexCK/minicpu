@@ -234,7 +234,7 @@ def write_spike_log(
         if i + 1 < len(events):
             next_pc = events[i + 1][0] & 0xFFFFFFFF
         else:
-            next_pc = (pc + 4) & 0xFFFFFFFF
+            next_pc = pc & 0xFFFFFFFF
         out_lines.append(format_dump_line(i + 1, next_pc, regs))
 
     log_dir = base_dir / "logs"

@@ -23,6 +23,7 @@ class CpuTop(config: RiscvConfig) extends Component {
   iMem.io.bus.address := currentPc
   iMem.io.bus.write := False
   iMem.io.bus.writeData := 0
+  iMem.io.bus.mask := 0
 
   val instruction = iMem.io.bus.readData
 
@@ -57,10 +58,33 @@ class CpuTop(config: RiscvConfig) extends Component {
   dMem.io.bus.enable := control.io.bus.memRead || control.io.bus.memWrite
   dMem.io.bus.write := control.io.bus.memWrite
   dMem.io.bus.address := alu.io.bus.result
+
+  val addrLow = alu.io.bus.result(1 downto 0)
+
   dMem.io.bus.writeData := regFile.io.rs2.data
+  dMem.io.bus.mask := 0
+
+  switch(funct3) {
+    is(U"3'b00") { // SB
+      dMem.io.bus.writeData := ((regFile.io.rs2
+        .data(7 downto 0)
+        .resize(config.xlen))
+        |<< (addrLow ## U"3'b000").asUInt)
+      dMem.io.bus.mask := B"0001" |<< addrLow
+    }
+    is(U"3'b01") { // SH
+      dMem.io.bus.writeData := (regFile.io.rs2
+        .data(15 downto 0)
+        .resize(config.xlen) |<< (addrLow(1) ? U(16) | U(0)))
+      dMem.io.bus.mask := Mux(addrLow(1), B"1100", B"0011")
+    }
+    is(U"3'b10") { // SW
+      dMem.io.bus.writeData := regFile.io.rs2.data
+      dMem.io.bus.mask := B"1111"
+    }
+  }
 
   val memWordBits = dMem.io.bus.readData.asBits
-  val addrLow = alu.io.bus.result(1 downto 0)
 
   val loadByte = Bits(8 bits)
   loadByte := memWordBits(7 downto 0)
