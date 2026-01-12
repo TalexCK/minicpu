@@ -113,16 +113,13 @@ object CpuTopSim extends App {
 
   private def preloadMem(dut: CpuTop, words: Map[Long, Int]): Unit = {
     val iDepth = dut.iMem.mem.wordCount
-    val dDepth = dut.dMem.mem.wordCount
-    if (iDepth <= 0 || dDepth <= 0)
+    if (iDepth <= 0)
       throw new RuntimeException("Memory depth is not positive")
 
     words.foreach { case (wa, w) =>
       val idxI = (java.lang.Long.remainderUnsigned(wa, iDepth.toLong)).toInt
-      val idxD = (java.lang.Long.remainderUnsigned(wa, dDepth.toLong)).toInt
       val bi = scala.math.BigInt(java.lang.Integer.toUnsignedLong(w))
       dut.iMem.mem.setBigInt(idxI, bi)
-      dut.dMem.mem.setBigInt(idxD, bi)
     }
   }
 
