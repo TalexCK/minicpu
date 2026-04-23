@@ -1,6 +1,6 @@
 # MiniCPU
 
-A simplified CPU implementation featuring a custom datapath and controller, written in SpinalHDL.
+A simplified CPU implementation featuring a custom datapath and controller, written in SpinalHDL. This is a project of si100b in ShanghaiTech University.
 
 ## Prerequisites
 
